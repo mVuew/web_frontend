@@ -1,10 +1,8 @@
-
-
-export default function Home() {
+export default function Auth() {
   return (
     <>
       <main className="p-10">
-        Home Page
+        Auth Page
       </main>
     </>
   );
