@@ -1,19 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
 import { FiSun, FiMoon } from "react-icons/fi";
+import { useTheme } from "../../providers";
 import MVuewText from "../ui/MVuewText";
 
 export default function Header() {
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => setMounted(true), []);
-
-
-  if (!mounted) return null; // prevents hydration mismatch
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <header className="w-full border-b border-gray-200 dark:border-gray-800">
@@ -43,8 +36,9 @@ export default function Header() {
         <div className="flex items-center gap-4">
           {/* Theme Toggle */}
           <button
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            onClick={toggleTheme}
             className="cursor-pointer"
+            aria-label="Toggle theme"
           >
             {theme === "dark" ? <FiSun /> : <FiMoon />}
           </button>
