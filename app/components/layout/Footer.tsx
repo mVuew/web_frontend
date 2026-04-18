@@ -1,6 +1,6 @@
 "use client";
 import { StoreButton } from '../ui/StoreButton';
-import { Link } from 'wouter';
+import Link from 'next/link';
 
 function FacebookIcon() {
   return (
