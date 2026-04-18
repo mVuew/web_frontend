@@ -1,4 +1,4 @@
-# mVuew project setupm guidance
+# mVuew Project Setup Guide
 
 This is a Next.js project built using the **App Router**.
 
