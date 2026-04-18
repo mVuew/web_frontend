@@ -1,8 +1,39 @@
 @import "tailwindcss";
 body {
-  @apply bg-white text-black;
+ background: #ffffff;
+  color: #000000;
 }
 
 .dark body {
-  @apply bg-black text-white;
+   background: linear-gradient(
+    135deg,
+    #000000 0%,
+    #1a0000 40%,
+    #1d0000 70%,
+    #000000 100%
+  );
+  color: #ffffff;
+}
+
+body {
+  font-family: var(--font-inter);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-kanit);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-in-out;
 }
