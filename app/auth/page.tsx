@@ -6,14 +6,15 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signInWithPopup,
-  signOut,
   updateProfile,
   type User,
 } from "firebase/auth";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useState } from "react";
 import MVuewText from "../components/ui/MVuewText";
+import { verifyAuthStatus } from "../lib/api/user";
 import {
   firebaseAuth,
   googleProvider,
@@ -94,13 +95,13 @@ function GoogleIcon() {
 }
 
 export default function AuthPage() {
+  const router = useRouter();
   const [mode, setMode] = useState<AuthMode>("signup");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [busy, setBusy] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
   const [notice, setNotice] = useState<Notice | null>(
     isFirebaseConfigured
       ? null
@@ -113,16 +114,59 @@ export default function AuthPage() {
   );
 
   useEffect(() => {
-    if (!firebaseAuth) {
+    if (!firebaseAuth || !isFirebaseConfigured) {
       return;
     }
 
+    let active = true;
+
+    const verifyExistingSession = async (authUser: User) => {
+      try {
+        setBusy(true);
+        setNotice({
+          tone: "info",
+          text: "You are already signed in. Checking account status...",
+        });
+
+        const idToken = await authUser.getIdToken();
+        const verification = await verifyAuthStatus(idToken, authUser);
+
+        console.log("[Auth] Existing session verify response", verification);
+
+        if (!active) {
+          return;
+        }
+
+        router.replace(verification.onboarded ? "/news" : "/onboarding");
+      } catch {
+        if (!active) {
+          return;
+        }
+
+        setNotice({
+          tone: "error",
+          text: "Unable to verify existing session. Please sign in again.",
+        });
+      } finally {
+        if (active) {
+          setBusy(false);
+        }
+      }
+    };
+
     const unsubscribe = onAuthStateChanged(firebaseAuth, (authUser) => {
-      setUser(authUser);
+      if (!authUser) {
+        return;
+      }
+
+      void verifyExistingSession(authUser);
     });
 
-    return unsubscribe;
-  }, []);
+    return () => {
+      active = false;
+      unsubscribe();
+    };
+  }, [router]);
 
   const canSubmit =
     !busy &&
@@ -130,6 +174,44 @@ export default function AuthPage() {
     email.trim().length > 0 &&
     password.length > 0 &&
     (mode === "signin" || (fullName.trim().length > 0 && confirmPassword.length > 0));
+
+  async function logAuthSuccessDetails(method: "email-password" | "google", authUser: User) {
+    const idToken = await authUser.getIdToken();
+
+    console.log("[Auth] Incoming sign-in details", {
+      method,
+      uid: authUser.uid,
+      email: authUser.email,
+      displayName: authUser.displayName,
+      providerIds: authUser.providerData.map((provider) => provider.providerId),
+      idToken,
+    });
+
+    return idToken;
+  }
+
+  async function verifyAndRouteUser(authUser: User, idToken: string) {
+    setNotice({ tone: "info", text: "Verifying account status..." });
+
+    const verification = await verifyAuthStatus(idToken, authUser);
+
+    console.log("[Auth] Verify response", verification);
+
+    if (verification.onboarded) {
+      setNotice({
+        tone: "success",
+        text: "Welcome back. Redirecting to your news feed...",
+      });
+      router.push("/news");
+      return;
+    }
+
+    setNotice({
+      tone: "info",
+      text: "Let's complete onboarding before entering your feed.",
+    });
+    router.push("/onboarding");
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -177,13 +259,32 @@ export default function AuthPage() {
           });
         }
 
+        const idToken = await logAuthSuccessDetails(
+          "email-password",
+          credentials.user
+        );
+
         setNotice({
           tone: "success",
           text: "Account created successfully. You are now signed in.",
         });
+
+        await verifyAndRouteUser(credentials.user, idToken);
       } else {
-        await signInWithEmailAndPassword(firebaseAuth, email.trim(), password);
+        const credentials = await signInWithEmailAndPassword(
+          firebaseAuth,
+          email.trim(),
+          password
+        );
+
+        const idToken = await logAuthSuccessDetails(
+          "email-password",
+          credentials.user
+        );
+
         setNotice({ tone: "success", text: "Signed in successfully." });
+
+        await verifyAndRouteUser(credentials.user, idToken);
       }
 
       setPassword("");
@@ -208,33 +309,18 @@ export default function AuthPage() {
     setNotice({ tone: "info", text: "Opening Google login..." });
 
     try {
-      await signInWithPopup(firebaseAuth, googleProvider);
+      const credentials = await signInWithPopup(firebaseAuth, googleProvider);
+
+      const idToken = await logAuthSuccessDetails("google", credentials.user);
+
       setNotice({
         tone: "success",
         text: "Google sign-in completed successfully.",
       });
+
+      await verifyAndRouteUser(credentials.user, idToken);
     } catch (error) {
       setNotice({ tone: "error", text: getAuthErrorMessage(error) });
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function handleSignOut() {
-    if (!firebaseAuth) {
-      return;
-    }
-
-    setBusy(true);
-
-    try {
-      await signOut(firebaseAuth);
-      setNotice({ tone: "success", text: "Signed out successfully." });
-    } catch {
-      setNotice({
-        tone: "error",
-        text: "Sign-out failed. Please try again.",
-      });
     } finally {
       setBusy(false);
     }
@@ -333,22 +419,6 @@ export default function AuthPage() {
                 Sign in
               </button>
             </div>
-
-            {user ? (
-              <div className="mb-6 border border-emerald-700/25 bg-emerald-700/10 p-4 text-sm text-emerald-800 dark:border-emerald-400/25 dark:bg-emerald-500/10 dark:text-emerald-300">
-                <p className="font-medium">
-                  Signed in as {user.displayName ?? user.email ?? "User"}
-                </p>
-                <button
-                  type="button"
-                  onClick={handleSignOut}
-                  disabled={busy}
-                  className="mt-3 border border-emerald-700/40 px-3 py-1.5 text-xs uppercase tracking-widest transition hover:bg-emerald-700/15 disabled:cursor-not-allowed disabled:opacity-60 dark:border-emerald-300/40 dark:hover:bg-emerald-400/10"
-                >
-                  Sign out
-                </button>
-              </div>
-            ) : null}
 
             <form onSubmit={handleSubmit} className="space-y-4">
               {mode === "signup" ? (
