@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 
 import { PhoneMockup3D } from "./../../ui/PhoneMockup3D";
 
-import MVuewText from "../../ui/MVuewText";
+import { MVuewText } from "../../ui/MVuewText";
 import Button from "../../ui/button";
 import EarlyAccessModal from "../../ui/EarlyAccessModal";
 
@@ -19,8 +19,8 @@ export function Hero() {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
       />
-      <section className="relative min-h-[100dvh] flex flex-col items-center justify-center overflow-hidden bg-background pt-24 pb-16 lg:py-0">
-        <div className="container relative z-10 mx-auto px-6 max-w-6xl grid lg:grid-cols-2 gap-12 items-center min-h-[100dvh] lg:min-h-0 lg:py-32">
+      <section className="relative min-h-dvh flex flex-col items-center justify-center overflow-hidden pt-24 pb-16 lg:py-0">
+        <div className="container relative z-10 mx-auto px-6 max-w-6xl grid lg:grid-cols-2 gap-12 items-center min-h-dvh lg:min-h-0 lg:py-32">
           {/* Left — Text */}
           <div className="space-y-10 text-center lg:text-left">
             <motion.div
@@ -34,7 +34,10 @@ export function Hero() {
                   <MVuewText />
                 </span>
                 <span className="block text-5xl sm:text-6xl md:text-7xl lg:text-[5.5rem]">
-                  over <span className="text-foreground/45">noise.</span>
+                  over{" "}
+                  <span className="text-foreground/45 text-red-600">
+                    noise.
+                  </span>
                 </span>
               </h1>
               <p className="mx-auto lg:mx-0 max-w-lg text-base md:text-lg text-foreground/75 font-serif">
@@ -49,7 +52,7 @@ export function Hero() {
             >
               <Button
                 size="lg"
-                className="rounded-none px-10 py-6 text-base md:text-lg font-serif"
+                className="rounded-none px-10 py-6 md:text-lg font-serif"
                 onClick={() => setModalOpen(true)}
               >
                 Request Early Access
@@ -67,7 +70,7 @@ export function Hero() {
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1.2, delay: 0.3 }}
-              className="absolute right-0 bottom-0 w-[260px]"
+              className="absolute right-0 bottom-0 w-65"
               style={{
                 transform: "rotateY(-18deg) rotateX(4deg) scale(0.88)",
                 transformStyle: "preserve-3d",
@@ -86,7 +89,7 @@ export function Hero() {
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1.2, delay: 0.1 }}
-              className="absolute left-8 top-0 w-[280px]"
+              className="absolute left-8 top-0 w-70"
               style={{
                 transform: "rotateY(-8deg) rotateX(2deg)",
                 transformStyle: "preserve-3d",

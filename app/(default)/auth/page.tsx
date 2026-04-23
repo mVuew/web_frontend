@@ -3,6 +3,7 @@
 import type { FirebaseError } from "firebase/app";
 import {
   createUserWithEmailAndPassword,
+  fetchSignInMethodsForEmail,
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signInWithPopup,
@@ -13,14 +14,15 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useState } from "react";
-import MVuewText from "../components/ui/MVuewText";
-import { verifyAuthStatus } from "../lib/api/user";
+import Toaster from "../../../components/atoms/Toaster";
+import {MVuewText} from "../../../components/ui/MVuewText";
+import { verifyAuthStatus } from "../../../lib/api/user";
 import {
   firebaseAuth,
   googleProvider,
   isFirebaseConfigured,
   missingFirebaseEnv,
-} from "../lib/firebase";
+} from "../../../lib/firebase";
 
 type AuthMode = "signin" | "signup";
 type NoticeTone = "error" | "success" | "info";
@@ -28,16 +30,19 @@ type NoticeTone = "error" | "success" | "info";
 type Notice = {
   tone: NoticeTone;
   text: string;
+  persistent?: boolean;
 };
 
 const cardStyles =
-  "relative overflow-hidden border border-black/10 bg-white/85 p-6 shadow-2xl shadow-black/10 backdrop-blur-md dark:border-white/15 dark:bg-black/45 dark:shadow-black/60 sm:p-8";
+  "relative overflow-hidden border border-border bg-surface p-6 shadow-2xl shadow-black/10 backdrop-blur-md dark:shadow-black/40 sm:p-8";
 
 const inputStyles =
-  "w-full border border-black/20 bg-white/90 px-4 py-3 text-sm text-black placeholder:text-black/40 outline-none transition focus:border-red-700 focus:ring-2 focus:ring-red-700/20 dark:border-white/20 dark:bg-black/35 dark:text-white dark:placeholder:text-white/35 dark:focus:border-red-500 dark:focus:ring-red-500/20";
+  "w-full border border-border bg-surface px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none transition focus:border-red-700 focus:ring-2 focus:ring-red-700/20 dark:focus:border-red-500 dark:focus:ring-red-500/20";
 
 function getAuthErrorMessage(error: unknown) {
-  const code = (error as FirebaseError | undefined)?.code;
+  const firebaseError = error as FirebaseError | undefined;
+  const code = firebaseError?.code;
+  const message = firebaseError?.message ?? "";
 
   switch (code) {
     case "auth/email-already-in-use":
@@ -46,29 +51,45 @@ function getAuthErrorMessage(error: unknown) {
       return "Please enter a valid email address.";
     case "auth/invalid-credential":
       return "Invalid credentials. Please check your email and password.";
+    case "auth/invalid-api-key":
+      return "Firebase API key is invalid for this project. Verify NEXT_PUBLIC_FIREBASE_API_KEY in your environment.";
+    case "auth/operation-not-allowed":
+      return "Email/password sign-in is disabled in Firebase Console. Enable it under Authentication > Sign-in method.";
     case "auth/user-not-found":
       return "No account found with this email.";
     case "auth/wrong-password":
       return "Incorrect password. Please try again.";
+    case "auth/user-disabled":
+      return "This account has been disabled. Contact support or use another account.";
     case "auth/popup-closed-by-user":
       return "Google sign-in was canceled before completion.";
     case "auth/too-many-requests":
       return "Too many attempts. Please wait a minute and try again.";
+    case "auth/network-request-failed":
+      return "Network error while contacting Firebase. Check internet connection and try again.";
     default:
+      if (message.includes("INVALID_LOGIN_CREDENTIALS")) {
+        return "Invalid login credentials. Double-check email/password or create an account first.";
+      }
+
+      if (message.includes("EMAIL_NOT_FOUND")) {
+        return "No account found with this email. Create an account first.";
+      }
+
+      if (message.includes("INVALID_PASSWORD")) {
+        return "Incorrect password. Please try again.";
+      }
+
+      if (message.includes("USER_DISABLED")) {
+        return "This account is disabled.";
+      }
+
+      if (message.includes("API_KEY_INVALID")) {
+        return "Firebase API key is invalid or restricted. Update Firebase API key configuration.";
+      }
+
       return "Authentication failed. Please try again.";
   }
-}
-
-function getNoticeClasses(tone: NoticeTone) {
-  if (tone === "error") {
-    return "border-red-700/25 bg-red-700/10 text-red-800 dark:border-red-400/25 dark:bg-red-500/10 dark:text-red-300";
-  }
-
-  if (tone === "success") {
-    return "border-emerald-700/25 bg-emerald-700/10 text-emerald-800 dark:border-emerald-400/25 dark:bg-emerald-500/10 dark:text-emerald-300";
-  }
-
-  return "border-blue-700/25 bg-blue-700/10 text-blue-800 dark:border-blue-400/25 dark:bg-blue-500/10 dark:text-blue-300";
 }
 
 function GoogleIcon() {
@@ -107,11 +128,38 @@ export default function AuthPage() {
       ? null
       : {
           tone: "error",
+          persistent: true,
           text: `Firebase is not configured. Missing: ${missingFirebaseEnv.join(
-            ", "
+            ", ",
           )}`,
-        }
+        },
   );
+  const [toastVisible, setToastVisible] = useState(Boolean(notice));
+
+  function showNotice(tone: NoticeTone, text: string, persistent = false) {
+    setNotice({ tone, text, persistent });
+  }
+
+  useEffect(() => {
+    if (!notice) {
+      setToastVisible(false);
+      return;
+    }
+
+    setToastVisible(true);
+
+    if (notice.persistent) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setToastVisible(false);
+    }, 3500);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [notice]);
 
   useEffect(() => {
     if (!firebaseAuth || !isFirebaseConfigured) {
@@ -123,10 +171,10 @@ export default function AuthPage() {
     const verifyExistingSession = async (authUser: User) => {
       try {
         setBusy(true);
-        setNotice({
-          tone: "info",
-          text: "You are already signed in. Checking account status...",
-        });
+        showNotice(
+          "info",
+          "You are already signed in. Checking account status...",
+        );
 
         const idToken = await authUser.getIdToken();
         const verification = await verifyAuthStatus(idToken, authUser);
@@ -143,10 +191,10 @@ export default function AuthPage() {
           return;
         }
 
-        setNotice({
-          tone: "error",
-          text: "Unable to verify existing session. Please sign in again.",
-        });
+        showNotice(
+          "error",
+          "Unable to verify existing session. Please sign in again.",
+        );
       } finally {
         if (active) {
           setBusy(false);
@@ -173,9 +221,13 @@ export default function AuthPage() {
     isFirebaseConfigured &&
     email.trim().length > 0 &&
     password.length > 0 &&
-    (mode === "signin" || (fullName.trim().length > 0 && confirmPassword.length > 0));
+    (mode === "signin" ||
+      (fullName.trim().length > 0 && confirmPassword.length > 0));
 
-  async function logAuthSuccessDetails(method: "email-password" | "google", authUser: User) {
+  async function logAuthSuccessDetails(
+    method: "email-password" | "google",
+    authUser: User,
+  ) {
     const idToken = await authUser.getIdToken();
 
     console.log("[Auth] Incoming sign-in details", {
@@ -191,25 +243,19 @@ export default function AuthPage() {
   }
 
   async function verifyAndRouteUser(authUser: User, idToken: string) {
-    setNotice({ tone: "info", text: "Verifying account status..." });
+    showNotice("info", "Verifying account status...");
 
     const verification = await verifyAuthStatus(idToken, authUser);
 
     console.log("[Auth] Verify response", verification);
 
     if (verification.onboarded) {
-      setNotice({
-        tone: "success",
-        text: "Welcome back. Redirecting to your news feed...",
-      });
+      showNotice("success", "Welcome back. Redirecting to your news feed...");
       router.push("/news");
       return;
     }
 
-    setNotice({
-      tone: "info",
-      text: "Let's complete onboarding before entering your feed.",
-    });
+    showNotice("info", "Let's complete onboarding before entering your feed.");
     router.push("/onboarding");
   }
 
@@ -217,40 +263,63 @@ export default function AuthPage() {
     event.preventDefault();
 
     if (!firebaseAuth) {
-      setNotice({
-        tone: "error",
-        text: "Firebase auth is unavailable. Please check your environment configuration.",
-      });
+      showNotice(
+        "error",
+        "Firebase auth is unavailable. Please check your environment configuration.",
+      );
       return;
     }
 
     if (mode === "signup") {
       if (password.length < 8) {
-        setNotice({
-          tone: "error",
-          text: "Password should be at least 8 characters long.",
-        });
+        showNotice("error", "Password should be at least 8 characters long.");
         return;
       }
 
       if (password !== confirmPassword) {
-        setNotice({
-          tone: "error",
-          text: "Password and confirm password do not match.",
-        });
+        showNotice("error", "Password and confirm password do not match.");
+        return;
+      }
+    }
+
+    if (mode === "signin") {
+      try {
+        const signInMethods = await fetchSignInMethodsForEmail(
+          firebaseAuth,
+          email.trim(),
+        );
+
+        if (signInMethods.length === 0) {
+          showNotice(
+            "error",
+            "No account found for this email. Please create an account first.",
+          );
+          setMode("signup");
+          return;
+        }
+
+        if (!signInMethods.includes("password")) {
+          showNotice(
+            "error",
+            "This email is registered with another provider. Use Google sign-in instead.",
+          );
+          return;
+        }
+      } catch (error) {
+        showNotice("error", getAuthErrorMessage(error));
         return;
       }
     }
 
     setBusy(true);
-    setNotice({ tone: "info", text: "Authenticating..." });
+    showNotice("info", "Authenticating...");
 
     try {
       if (mode === "signup") {
         const credentials = await createUserWithEmailAndPassword(
           firebaseAuth,
           email.trim(),
-          password
+          password,
         );
 
         if (fullName.trim()) {
@@ -261,28 +330,28 @@ export default function AuthPage() {
 
         const idToken = await logAuthSuccessDetails(
           "email-password",
-          credentials.user
+          credentials.user,
         );
 
-        setNotice({
-          tone: "success",
-          text: "Account created successfully. You are now signed in.",
-        });
+        showNotice(
+          "success",
+          "Account created successfully. You are now signed in.",
+        );
 
         await verifyAndRouteUser(credentials.user, idToken);
       } else {
         const credentials = await signInWithEmailAndPassword(
           firebaseAuth,
           email.trim(),
-          password
+          password,
         );
 
         const idToken = await logAuthSuccessDetails(
           "email-password",
-          credentials.user
+          credentials.user,
         );
 
-        setNotice({ tone: "success", text: "Signed in successfully." });
+        showNotice("success", "Signed in successfully.");
 
         await verifyAndRouteUser(credentials.user, idToken);
       }
@@ -290,7 +359,7 @@ export default function AuthPage() {
       setPassword("");
       setConfirmPassword("");
     } catch (error) {
-      setNotice({ tone: "error", text: getAuthErrorMessage(error) });
+      showNotice("error", getAuthErrorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -298,36 +367,38 @@ export default function AuthPage() {
 
   async function handleGoogleSignIn() {
     if (!firebaseAuth) {
-      setNotice({
-        tone: "error",
-        text: "Firebase auth is unavailable. Please check your environment configuration.",
-      });
+      showNotice(
+        "error",
+        "Firebase auth is unavailable. Please check your environment configuration.",
+      );
       return;
     }
 
     setBusy(true);
-    setNotice({ tone: "info", text: "Opening Google login..." });
+    showNotice("info", "Opening Google login...");
 
     try {
       const credentials = await signInWithPopup(firebaseAuth, googleProvider);
 
       const idToken = await logAuthSuccessDetails("google", credentials.user);
 
-      setNotice({
-        tone: "success",
-        text: "Google sign-in completed successfully.",
-      });
+      showNotice("success", "Google sign-in completed successfully.");
 
       await verifyAndRouteUser(credentials.user, idToken);
     } catch (error) {
-      setNotice({ tone: "error", text: getAuthErrorMessage(error) });
+      showNotice("error", getAuthErrorMessage(error));
     } finally {
       setBusy(false);
     }
   }
 
   return (
-    <main className="relative min-h-[calc(100dvh-160px)] overflow-hidden px-4 py-14 sm:px-6">
+    <main className="relative min-h-[calc(100dvh-160px)] overflow-hidden px-4 py-14 text-foreground sm:px-6">
+      <Toaster
+        type={notice?.tone}
+        message={notice?.text ?? ""}
+        visible={Boolean(notice) && toastVisible}
+      />
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -left-20 top-10 h-64 w-64 rounded-full bg-red-700/15 blur-3xl dark:bg-red-500/20" />
         <div className="absolute -right-20 top-36 h-72 w-72 rounded-full bg-black/10 blur-3xl dark:bg-white/10" />
@@ -341,21 +412,21 @@ export default function AuthPage() {
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           className="space-y-8"
         >
-          <p className="text-xs uppercase tracking-[0.2em] text-black/60 dark:text-white/60">
+          <p className="text-muted-foreground text-xs uppercase tracking-[0.2em]">
             Secure Access
           </p>
 
           <div className="space-y-5">
-            <h1 className="text-5xl font-medium leading-[1.05] tracking-tight text-black dark:text-white sm:text-6xl lg:text-7xl">
+            <h1 className="text-foreground text-5xl font-medium leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
               <span className="block">
                 <MVuewText />
               </span>
               <span className="block">
-                <span className="text-black/80 dark:text-white/85">account </span>
-                <span className="text-red-700 dark:text-red-400">gateway</span>
+                <span className="text-muted-foreground">account </span>
+                <span className="text-red-700 dark:text-red-500">gateway</span>
               </span>
             </h1>
-            <p className="max-w-lg text-base leading-relaxed text-black/70 dark:text-white/70 sm:text-lg">
+            <p className="text-muted-foreground max-w-lg text-base leading-relaxed sm:text-lg">
               Sign in to continue your deep-news experience, or create a new
               account in seconds.
             </p>
@@ -363,18 +434,18 @@ export default function AuthPage() {
 
           <div className="grid max-w-xl gap-4 sm:grid-cols-2">
             <div className={cardStyles}>
-              <p className="text-xs uppercase tracking-[0.18em] text-black/55 dark:text-white/55">
+              <p className="text-muted-foreground text-xs uppercase tracking-[0.18em]">
                 Email + Password
               </p>
-              <p className="mt-2 font-serif text-lg text-black/80 dark:text-white/85">
+              <p className="text-foreground mt-2 font-serif text-lg">
                 Fast, familiar, and secure sign-in flow.
               </p>
             </div>
             <div className={cardStyles}>
-              <p className="text-xs uppercase tracking-[0.18em] text-black/55 dark:text-white/55">
+              <p className="text-muted-foreground text-xs uppercase tracking-[0.18em]">
                 Google Login
               </p>
-              <p className="mt-2 font-serif text-lg text-black/80 dark:text-white/85">
+              <p className="text-foreground mt-2 font-serif text-lg">
                 One-click access with your Google account.
               </p>
             </div>
@@ -382,7 +453,7 @@ export default function AuthPage() {
 
           <Link
             href="/"
-            className="inline-flex items-center gap-2 border border-black/20 px-5 py-2.5 text-sm font-medium text-black transition hover:border-black/40 hover:bg-black/5 dark:border-white/30 dark:text-white dark:hover:bg-white/10"
+            className="inline-flex items-center gap-2 border border-border bg-surface px-5 py-2.5 text-sm font-medium text-foreground transition hover:bg-black/5 dark:hover:bg-white/10"
           >
             Back to home
           </Link>
@@ -402,7 +473,7 @@ export default function AuthPage() {
                 className={`flex-1 border px-4 py-2 text-sm font-medium transition ${
                   mode === "signup"
                     ? "border-red-700 bg-red-700 text-white dark:border-red-500 dark:bg-red-500"
-                    : "border-black/15 bg-white/60 text-black/70 hover:bg-black/5 dark:border-white/20 dark:bg-white/5 dark:text-white/75 dark:hover:bg-white/10"
+                    : "border-border bg-surface text-muted-foreground hover:bg-black/5 dark:hover:bg-white/10"
                 }`}
               >
                 Sign up
@@ -413,7 +484,7 @@ export default function AuthPage() {
                 className={`flex-1 border px-4 py-2 text-sm font-medium transition ${
                   mode === "signin"
                     ? "border-red-700 bg-red-700 text-white dark:border-red-500 dark:bg-red-500"
-                    : "border-black/15 bg-white/60 text-black/70 hover:bg-black/5 dark:border-white/20 dark:bg-white/5 dark:text-white/75 dark:hover:bg-white/10"
+                    : "border-border bg-surface text-muted-foreground hover:bg-black/5 dark:hover:bg-white/10"
                 }`}
               >
                 Sign in
@@ -425,7 +496,7 @@ export default function AuthPage() {
                 <div className="space-y-2">
                   <label
                     htmlFor="fullName"
-                    className="text-xs uppercase tracking-[0.16em] text-black/60 dark:text-white/60"
+                    className="text-muted-foreground text-xs uppercase tracking-[0.16em]"
                   >
                     Full name
                   </label>
@@ -445,7 +516,7 @@ export default function AuthPage() {
               <div className="space-y-2">
                 <label
                   htmlFor="email"
-                  className="text-xs uppercase tracking-[0.16em] text-black/60 dark:text-white/60"
+                  className="text-muted-foreground text-xs uppercase tracking-[0.16em]"
                 >
                   Email
                 </label>
@@ -464,7 +535,7 @@ export default function AuthPage() {
               <div className="space-y-2">
                 <label
                   htmlFor="password"
-                  className="text-xs uppercase tracking-[0.16em] text-black/60 dark:text-white/60"
+                  className="text-muted-foreground text-xs uppercase tracking-[0.16em]"
                 >
                   Password
                 </label>
@@ -486,7 +557,7 @@ export default function AuthPage() {
                 <div className="space-y-2">
                   <label
                     htmlFor="confirmPassword"
-                    className="text-xs uppercase tracking-[0.16em] text-black/60 dark:text-white/60"
+                    className="text-muted-foreground text-xs uppercase tracking-[0.16em]"
                   >
                     Confirm password
                   </label>
@@ -516,34 +587,23 @@ export default function AuthPage() {
               </button>
             </form>
 
-            <div className="my-6 flex items-center gap-3 text-xs uppercase tracking-[0.16em] text-black/45 dark:text-white/45">
-              <span className="h-px flex-1 bg-black/15 dark:bg-white/15" />
+            <div className="text-muted-foreground my-6 flex items-center gap-3 text-xs uppercase tracking-[0.16em]">
+              <span className="h-px flex-1 bg-border" />
               <span>or</span>
-              <span className="h-px flex-1 bg-black/15 dark:bg-white/15" />
+              <span className="h-px flex-1 bg-border" />
             </div>
 
             <button
               type="button"
               onClick={handleGoogleSignIn}
               disabled={busy || !isFirebaseConfigured}
-              className="flex w-full items-center justify-center gap-3 border border-black/20 bg-white/80 px-4 py-3 text-sm font-medium text-black transition hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/15"
+              className="flex w-full items-center justify-center gap-3 border border-border bg-surface px-4 py-3 text-sm font-medium text-foreground transition hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-60 dark:hover:bg-white/10"
             >
               <GoogleIcon />
               Continue with Google
             </button>
 
-            {notice ? (
-              <p
-                className={`mt-5 border p-3 text-sm leading-relaxed ${getNoticeClasses(
-                  notice.tone
-                )}`}
-                role="status"
-              >
-                {notice.text}
-              </p>
-            ) : null}
-
-            <p className="mt-6 text-center text-xs leading-relaxed text-black/55 dark:text-white/55">
+            <p className="text-muted-foreground mt-6 text-center text-xs leading-relaxed">
               By continuing, you agree to use mVuew responsibly and protect your
               account credentials.
             </p>

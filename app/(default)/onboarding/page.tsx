@@ -6,17 +6,17 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useMemo, useState } from "react";
-import MVuewText from "../components/ui/MVuewText";
+import {MVuewText} from "../../../components/ui/MVuewText";
 import {
   submitOnboarding,
   type OnboardingPayload,
   verifyAuthStatus,
-} from "../lib/api/user";
+} from "../../../lib/api/user";
 import {
   firebaseAuth,
   isFirebaseConfigured,
   missingFirebaseEnv,
-} from "../lib/firebase";
+} from "../../../lib/firebase";
 
 type NoticeTone = "error" | "success" | "info";
 
@@ -72,7 +72,7 @@ export default function OnboardingPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [initializing, setInitializing] = useState(
-    isFirebaseConfigured && Boolean(firebaseAuth)
+    isFirebaseConfigured && Boolean(firebaseAuth),
   );
   const [busy, setBusy] = useState(false);
   const [isNewUser, setIsNewUser] = useState<boolean | null>(null);
@@ -89,9 +89,9 @@ export default function OnboardingPage() {
       : {
           tone: "error",
           text: `Firebase is not configured. Missing: ${missingFirebaseEnv.join(
-            ", "
+            ", ",
           )}`,
-        }
+        },
   );
 
   const canSubmit = useMemo(() => {
@@ -108,7 +108,16 @@ export default function OnboardingPage() {
       preferredCategories.length > 0 &&
       fcmToken.trim().length > 0
     );
-  }, [age, busy, fcmToken, homeCountry, name, phoneNumber, preferredCategories, profession]);
+  }, [
+    age,
+    busy,
+    fcmToken,
+    homeCountry,
+    name,
+    phoneNumber,
+    preferredCategories,
+    profession,
+  ]);
 
   useEffect(() => {
     if (!firebaseAuth || !isFirebaseConfigured) {
@@ -285,12 +294,15 @@ export default function OnboardingPage() {
                 <MVuewText />
               </span>
               <span className="block text-black/80 dark:text-white/85">
-                set your <span className="text-red-700 dark:text-red-400">signal profile</span>
+                set your{" "}
+                <span className="text-red-700 dark:text-red-400">
+                  signal profile
+                </span>
               </span>
             </h1>
             <p className="max-w-lg text-base leading-relaxed text-black/70 dark:text-white/70 sm:text-lg">
-              Tell us what matters to you so we can build a smarter, more relevant
-              feed from day one.
+              Tell us what matters to you so we can build a smarter, more
+              relevant feed from day one.
             </p>
           </div>
 
@@ -497,7 +509,7 @@ export default function OnboardingPage() {
             {notice ? (
               <p
                 className={`mt-5 border p-3 text-sm leading-relaxed ${getNoticeClasses(
-                  notice.tone
+                  notice.tone,
                 )}`}
                 role="status"
               >
