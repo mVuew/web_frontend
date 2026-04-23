@@ -3,7 +3,7 @@ import { useRef, useState } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { PhoneMockup3D } from './../../ui/PhoneMockup3D';
 import { GlobalFeedIllustration } from '../../ui/GlobalFeedIllustration';
-import { AnimatedVuew, renderWithAnimatedVuew } from '../../ui/AnimatedVuew';
+import { AnimatedVuew, renderWithAnimatedVuew } from '@/components/ui/AnimatedVuew';
 
 /* ─────────────────────────────────────────────────────────── */
 /* 1. my-Vuew. — Global curated feed                         */
@@ -110,7 +110,7 @@ export function PerspectivesSection() {
               transition={{ duration: 0.9 }}
               className="z-10 w-[240px] sm:w-[260px]"
             >
-              <PhoneMockup3D src="/app-perspective-detail.jpeg" alt="mVuew Perspective Detail" />
+              <PhoneMockup3D src="/images/app-perspective-detail.jpeg" alt="mVuew Perspective Detail" />
             </motion.div>
           </div>
 
@@ -233,7 +233,7 @@ export function TimelineSection() {
               transition={{ duration: 0.9 }}
               className="z-10 w-[240px] sm:w-[260px] shrink-0"
             >
-              <PhoneMockup3D src="/app-story-detail.jpeg" alt="mVuew Story Detail" />
+              <PhoneMockup3D src="/images/app-story-detail.jpeg" alt="mVuew Story Detail" />
             </motion.div>
 
             <div className="hidden lg:flex flex-col relative py-10 min-h-[360px]">

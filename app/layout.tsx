@@ -1,5 +1,3 @@
-import { Footer } from "./components/layout/Footer";
-import Header from "./components/layout/Header";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Inter, Kanit } from "next/font/google";
@@ -15,6 +13,7 @@ const kanit = Kanit({
   subsets: ["latin"],
   variable: "--font-kanit",
   display: "swap",
+  preload: false,
 });
 
 export default function RootLayout({
@@ -28,12 +27,8 @@ export default function RootLayout({
       className={` ${inter.variable} ${kanit.variable} antialiased`}
       suppressHydrationWarning={true}
     >
-      <body>
-        <Providers>
-          <Header />
-          {children}
-          <Footer/>
-        </Providers>
+      <body className="bg-background text-foreground transition-colors duration-300">
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

@@ -1,26 +1,76 @@
 @import "tailwindcss";
 
-body {
- background: #ffffff;
-  color: #000000;
+:root {
+  --color-background: #f8fafc;
+  --color-foreground: #0f172a;
+  --color-muted-foreground: #475569;
+  --color-border: #d7dde6;
+  --color-surface: #ffffff;
+  --global-gradient: none;
+  color-scheme: light;
 }
 
-.dark body {
-   background: linear-gradient(
-    135deg,
-    #000000 0%,
-    #1a0000 40%,
-    #1d0000 70%,
-    #000000 100%
-  );
-  color: #ffffff;
+.dark {
+  --color-background: #05070b;
+  --color-foreground: #f8fafc;
+  --color-muted-foreground: #a1acbf;
+  --color-border: #2a3140;
+  --color-surface: #1e0d0d;
+  --global-gradient:
+    radial-gradient(circle at 10% 16%, rgba(133, 1, 1, 0.26), transparent 36%),
+    radial-gradient(circle at 86% 10%, rgba(74, 0, 0, 0.2), transparent 34%),
+    linear-gradient(145deg, #040608 0%, #120608 46%, #05070b 100%);
+  color-scheme: dark;
+}
+
+.bg-background {
+  background-color: var(--color-background);
+}
+
+.bg-surface {
+  background-color: var(--color-surface);
+}
+
+.text-foreground {
+  color: var(--color-foreground);
+}
+
+.text-muted-foreground {
+  color: var(--color-muted-foreground);
+}
+
+.border-border {
+  border-color: var(--color-border);
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  position: relative;
+  isolation: isolate;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--global-gradient);
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 body {
   font-family: var(--font-inter);
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-kanit);
 }
 
@@ -37,4 +87,29 @@ h1, h2, h3, h4, h5, h6 {
 
 .animate-fadeIn {
   animation: fadeIn 0.5s ease-in-out;
+}
+/* character slide */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slideUp {
+  animation: slideUp 0.4s ease forwards;
+}
+
+/* fade */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease forwards;
 }

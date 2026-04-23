@@ -42,7 +42,7 @@ export function Pricing() {
   return (
     <>
       <EarlyAccessModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
-      <section id="pricing" className="py-40">
+      <section id="pricing" className="py-10">
         <div className="container mx-auto px-6 max-w-6xl">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
