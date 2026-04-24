@@ -8,7 +8,7 @@ type ThemeToggleProps = {
 };
 
 export default function ThemeToggle({ className = "" }: ThemeToggleProps) {
-  const { theme, toggleTheme } = useTheme();
+  const { toggleTheme } = useTheme();
 
   return (
     <button
@@ -16,11 +16,10 @@ export default function ThemeToggle({ className = "" }: ThemeToggleProps) {
       onClick={toggleTheme}
       className={`inline-flex h-10 w-10 items-center justify-center border border-border  text-foreground transition hover:bg-black/5 dark:hover:bg-white/10 ${className}`}
       aria-label="Toggle theme"
-      title={
-        theme === "dark" ? "Switch to light theme" : "Switch to dark theme"
-      }
+      title="Toggle theme"
     >
-      {theme === "dark" ? <FiSun size={18} /> : <FiMoon size={18} />}
+      <FiMoon size={18} className="dark:hidden" />
+      <FiSun size={18} className="hidden dark:block" />
     </button>
   );
 }
