@@ -20,13 +20,12 @@ export default function ProfileMenu({
   className = "",
 }: ProfileMenuProps) {
   const [open, setOpen] = useState(false);
+
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (!containerRef.current) {
-        return;
-      }
+      if (!containerRef.current) return;
 
       if (!containerRef.current.contains(event.target as Node)) {
         setOpen(false);
@@ -40,10 +39,12 @@ export default function ProfileMenu({
     }
 
     document.addEventListener("mousedown", handleClickOutside);
+
     document.addEventListener("keydown", handleEscape);
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+
       document.removeEventListener("keydown", handleEscape);
     };
   }, []);
@@ -55,44 +56,131 @@ export default function ProfileMenu({
 
   return (
     <div ref={containerRef} className={`relative ${className}`}>
+      {/* trigger */}
       <button
         type="button"
         onClick={() => setOpen((current) => !current)}
-        className="inline-flex h-10 items-center gap-2 border border-border px-3 text-sm font-medium text-foreground transition hover:bg-black/5 dark:hover:bg-white/10"
         aria-haspopup="menu"
         aria-expanded={open}
+        className="
+inline-flex
+h-10
+items-center
+gap-2
+
+border border-border
+bg-surface
+
+px-3
+text-sm
+font-medium
+text-foreground
+
+transition-all duration-200
+
+hover:bg-accent-soft
+hover:border-[var(--color-accent)]
+
+rounded-none
+"
       >
-        <FiUser />
+        <FiUser className="opacity-80" />
+
         <span className="max-w-28 truncate">{profileLabel}</span>
-        <FiChevronDown className={`transition ${open ? "rotate-180" : ""}`} />
+
+        <FiChevronDown
+          className={`
+transition-transform duration-200
+${open ? "rotate-180" : ""}
+`}
+        />
       </button>
 
-      {open ? (
+      {/* dropdown */}
+      {open && (
         <div
-          className="absolute right-0 top-full z-50 mt-2 w-48 border border-border bg-surface p-1 shadow-xl"
           role="menu"
+          className="
+absolute
+right-0
+top-full
+z-50
+mt-2
+w-52
+
+border border-border
+
+p-1
+
+shadow-2xl
+backdrop-blur-md
+"
+style={{
+              background: "var(--color-background-translucent)",
+            }}
         >
+          {/* subtle top accent */}
+          <div
+            className="absolute top-0 left-0 h-[2px] w-full"
+            style={{
+              background: "var(--color-accent-strong)",
+            }}
+          />
+
           <Link
             href={profileHref}
             onClick={() => setOpen(false)}
-            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground transition hover:bg-black/5 dark:hover:bg-white/10"
             role="menuitem"
+            className="
+relative
+flex
+w-full
+items-center
+gap-3
+px-3 py-2.5
+
+text-sm
+text-foreground
+
+transition
+hover:bg-accent-soft
+"
           >
             <FiUser />
             Profile
           </Link>
+
           <button
             type="button"
+            role="menuitem"
             onClick={handleLogoutClick}
             disabled={signingOut}
-            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-red-700 transition hover:bg-red-700/10 disabled:cursor-not-allowed disabled:opacity-60 dark:text-red-400 dark:hover:bg-red-500/10"
-            role="menuitem"
+            className="
+flex
+w-full
+items-center
+gap-3
+
+px-3 py-2.5
+text-left
+text-sm
+
+transition
+disabled:opacity-60
+disabled:cursor-not-allowed
+
+hover:bg-accent-soft
+"
+            style={{
+              color: "var(--color-accent-strong)",
+            }}
           >
             <FiLogOut />
-            {signingOut ? "Signing out" : "Logout"}
+
+            {signingOut ? "Signing out..." : "Logout"}
           </button>
         </div>
-      ) : null}
+      )}
     </div>
   );
 }

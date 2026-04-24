@@ -1,20 +1,8 @@
 import "./globals.css";
 import { Providers } from "./providers";
-import { Inter, Kanit } from "next/font/google";
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const kanit = Kanit({
-  weight: ["400", "500", "600", "700"],
-  subsets: ["latin"],
-  variable: "--font-kanit",
-  display: "swap",
-  preload: false,
-});
+import { siteFont } from "../constants/site-font";
+import { themeCssVariables } from "../constants/colors";
+import type { CSSProperties } from "react";
 
 export default function RootLayout({
   children,
@@ -24,10 +12,13 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={` ${inter.variable} ${kanit.variable} antialiased`}
+      className={`${siteFont.variable} antialiased`}
+      style={themeCssVariables as CSSProperties}
       suppressHydrationWarning={true}
     >
-      <body className="bg-background text-foreground transition-colors duration-300">
+      <body
+        className={`bg-background text-foreground transition-colors duration-300 ${siteFont.className}`}
+      >
         <Providers>{children}</Providers>
       </body>
     </html>

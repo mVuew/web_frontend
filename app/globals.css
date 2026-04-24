@@ -1,25 +1,32 @@
 @import "tailwindcss";
 
 :root {
-  --color-background: #f8fafc;
-  --color-foreground: #0f172a;
-  --color-muted-foreground: #475569;
-  --color-border: #d7dde6;
-  --color-surface: #ffffff;
-  --global-gradient: none;
+  --color-background: var(--theme-light-background);
+  --color-foreground: var(--theme-light-foreground);
+  --color-muted-foreground: var(--theme-light-muted-foreground);
+  --color-border: var(--theme-light-border);
+  --color-surface: var(--theme-light-surface);
+  --color-accent: var(--theme-light-accent);
+  --color-accent-strong: var(--theme-light-accent-strong);
+  --color-accent-soft: var(--theme-light-accent-soft);
+  --color-accent-muted: var(--theme-light-accent-muted);
+  --color-tab-muted: var(--theme-light-tab-muted);
+  --global-gradient: var(--theme-light-global-gradient);
   color-scheme: light;
 }
 
 .dark {
-  --color-background: #05070b;
-  --color-foreground: #f8fafc;
-  --color-muted-foreground: #a1acbf;
-  --color-border: #2a3140;
-  --color-surface: #1e0d0d;
-  --global-gradient:
-    radial-gradient(circle at 10% 16%, rgba(133, 1, 1, 0.26), transparent 36%),
-    radial-gradient(circle at 86% 10%, rgba(74, 0, 0, 0.2), transparent 34%),
-    linear-gradient(145deg, #040608 0%, #120608 46%, #05070b 100%);
+  --color-background: var(--theme-dark-background);
+  --color-foreground: var(--theme-dark-foreground);
+  --color-muted-foreground: var(--theme-dark-muted-foreground);
+  --color-border: var(--theme-dark-border);
+  --color-surface: var(--theme-dark-surface);
+  --color-accent: var(--theme-dark-accent);
+  --color-accent-strong: var(--theme-dark-accent-strong);
+  --color-accent-soft: var(--theme-dark-accent-soft);
+  --color-accent-muted: var(--theme-dark-accent-muted);
+  --color-tab-muted: var(--theme-dark-tab-muted);
+  --global-gradient: var(--theme-dark-global-gradient);
   color-scheme: dark;
 }
 
@@ -62,7 +69,7 @@ body::before {
 }
 
 body {
-  font-family: var(--font-inter);
+  font-family: var(--font-site);
 }
 
 h1,
@@ -71,7 +78,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: var(--font-kanit);
+  font-family: var(--font-site);
 }
 
 @keyframes fadeIn {
@@ -106,8 +113,12 @@ h6 {
 
 /* fade */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .animate-fadeIn {

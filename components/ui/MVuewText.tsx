@@ -158,7 +158,7 @@ export function MVuewText({ className = '', timingScale = 1 }: Props) {
 
   return (
     <span
-      className={`inline-flex items-baseline font-serif ${className}`}
+      className={`inline-flex items-baseline ${className}`}
       aria-label="mVuew"
       style={{ lineHeight: 'inherit' }}
     >
