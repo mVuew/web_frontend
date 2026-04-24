@@ -177,7 +177,7 @@ export default function AuthPage() {
         );
 
         const idToken = await authUser.getIdToken();
-        const verification = await verifyAuthStatus(idToken, authUser);
+        const verification = await verifyAuthStatus(idToken);
 
         console.log("[Auth] Existing session verify response", verification);
 
@@ -245,7 +245,7 @@ export default function AuthPage() {
   async function verifyAndRouteUser(authUser: User, idToken: string) {
     showNotice("info", "Verifying account status...");
 
-    const verification = await verifyAuthStatus(idToken, authUser);
+    const verification = await verifyAuthStatus(idToken);
 
     console.log("[Auth] Verify response", verification);
 
@@ -393,7 +393,7 @@ export default function AuthPage() {
   }
 
   return (
-    <main className="relative min-h-[calc(100dvh-160px)] overflow-hidden px-4 py-14 text-foreground sm:px-6">
+    <main className="relative min-h-[calc(100dvh-160px)] overflow-hidden px-4 py-24 text-foreground sm:px-6">
       <Toaster
         type={notice?.tone}
         message={notice?.text ?? ""}

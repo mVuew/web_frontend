@@ -132,7 +132,7 @@ export default function OnboardingPage() {
         setNotice({ tone: "info", text: "Checking onboarding status..." });
 
         const idToken = await authUser.getIdToken();
-        const verifyResponse = await verifyAuthStatus(idToken, authUser);
+        const verifyResponse = await verifyAuthStatus(idToken);
 
         console.log("[Onboarding] Verify response", verifyResponse);
 
@@ -250,7 +250,7 @@ export default function OnboardingPage() {
 
       console.log("[Onboarding] Submitting payload", payload);
 
-      const onboardingResponse = await submitOnboarding(idToken, payload, user);
+      const onboardingResponse = await submitOnboarding(idToken, payload);
 
       console.log("[Onboarding] Onboarding response", onboardingResponse);
 

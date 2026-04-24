@@ -35,7 +35,7 @@ export default function Toaster({
   if (!visible) return null;
 
   return (
-    <div className={`fixed top-4 right-4 z-50`} style={{ backgroundColor: colors.background }}>
+    <div className={`fixed bottom-4 right-4 z-50`} style={{ backgroundColor: colors.background }}>
       <div
         className={`
           max-w-sm px-4 py-3 rounded-lg shadow-lg text-sm font-medium
