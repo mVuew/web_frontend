@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import { fonts } from "./constants/fonts";
 
 const config: Config = {
   darkMode: "class",
@@ -6,8 +7,8 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        heading: "var(--font-kanit)",
-        body: "var(--font-inter)",
+        heading: fonts.heading,
+        body: fonts.body,
       },
     },
   },

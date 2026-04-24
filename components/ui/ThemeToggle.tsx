@@ -14,7 +14,7 @@ export default function ThemeToggle({ className = "" }: ThemeToggleProps) {
     <button
       type="button"
       onClick={toggleTheme}
-      className={`inline-flex h-10 w-10 items-center justify-center border border-border  text-foreground transition hover:bg-black/5 dark:hover:bg-white/10 ${className}`}
+      className={`inline-flex h-10 w-10 items-center justify-center border border-border rounded-full  text-foreground transition hover:bg-black/5 dark:hover:bg-white/10 ${className}`}
       aria-label="Toggle theme"
       title="Toggle theme"
     >

@@ -4,6 +4,7 @@ import { onAuthStateChanged, signOut, type User } from "firebase/auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import colors from "../../constants/colors";
 import { firebaseAuth } from "../../lib/firebase";
 import { MVuewText } from "../ui/MVuewText";
 import ProfileMenu from "../ui/ProfileMenu";
@@ -11,40 +12,36 @@ import ThemeToggle from "../ui/ThemeToggle";
 
 export default function Header() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
+
+  const [user, setUser] = useState<User | null>(
+    () => firebaseAuth?.currentUser ?? null,
+  );
   const [signingOut, setSigningOut] = useState(false);
 
-  // 🔥 scroll state
   const [showHeader, setShowHeader] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
     if (!firebaseAuth) return;
 
-    const unsubscribe = onAuthStateChanged(firebaseAuth, (authUser) => {
-      setUser(authUser);
-    });
-
-    return unsubscribe;
+    const unsub = onAuthStateChanged(firebaseAuth, setUser);
+    return unsub;
   }, []);
 
-  // 🔥 scroll logic
   useEffect(() => {
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
+      const current = window.scrollY;
 
-      if (currentScrollY > lastScrollY && currentScrollY > 80) {
-        // scrolling down → hide
+      if (current > lastScrollY && current > 80) {
         setShowHeader(false);
       } else {
-        // scrolling up → show
         setShowHeader(true);
       }
 
-      setLastScrollY(currentScrollY);
+      setLastScrollY(current);
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
@@ -71,36 +68,48 @@ export default function Header() {
         fixed top-0 left-0 w-full z-50
         transition-transform duration-300
         ${showHeader ? "translate-y-0" : "-translate-y-full"}
-        backdrop-blur-md  border-b border-zinc-800
+
+        bg-background/85
+        backdrop-blur-xl
+        border-b border-border
+        supports-[backdrop-filter]:bg-background/70
       `}
     >
-      <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+      <div className="max-w-7xl mx-auto h-16 px-6 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/">
+        <Link href="/" className="group flex items-center">
           <MVuewText
             timingScale={1.8}
-            className="text-2xl font-medium tracking-wide text-white cursor-pointer text-foreground"
+            className={`
+              text-2xl md:text-3xl
+              font-semibold
+              tracking-tight
+              ${colors.text}
+              transition-opacity
+              group-hover:opacity-80
+            `}
           />
         </Link>
 
-        {/* Navigation */}
-        <nav className="hidden md:flex items-center gap-8 text-sm text-zinc-400">
-          <Link href="#" className="hover:text-white">
-            Why mVuew?
-          </Link>
-          <Link href="#" className="hover:text-white">
-            Experience
-          </Link>
-          <Link href="#" className="hover:text-white">
-            Pricing
-          </Link>
-          <Link href="#" className="hover:text-white">
-            About
-          </Link>
+        {/* Nav */}
+        <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
+          {["Why mVuew?", "Experiences", "Pricing", "About"].map((item) => (
+            <Link
+              key={item}
+              href="#"
+              className="
+                text-muted-foreground
+                transition-colors duration-200
+                hover:text-foreground
+              "
+            >
+              {item}
+            </Link>
+          ))}
         </nav>
 
-        {/* Right Section */}
-        <div className="flex items-center gap-4">
+        {/* Right */}
+        <div className="flex items-center gap-3">
           <ThemeToggle />
 
           {user ? (
@@ -113,9 +122,20 @@ export default function Header() {
           ) : (
             <Link
               href="/auth"
-              className="border border-red-700/40 bg-red-700/10 px-4 py-2 text-sm font-medium text-red-400 hover:bg-red-700/20 transition"
+              className="
+                px-4 py-2
+                rounded-xl
+                text-sm
+                font-medium
+                transition-all
+                border border-border
+                bg-surface
+                text-foreground
+                hover:bg-accent/10
+                hover:border-slate-500
+              "
             >
-              Get Early Access
+              Sign In
             </Link>
           )}
         </div>

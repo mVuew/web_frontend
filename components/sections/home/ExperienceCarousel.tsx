@@ -11,7 +11,6 @@ import {
 import { renderWithAnimatedVuew } from "@/components/ui/AnimatedVuew";
 import Button from "@/components/ui/button";
 
-
 const SLIDES = [
   { label: "my-Vuew", Component: FeedSection },
   { label: "multi-Vuew", Component: PerspectivesSection },
@@ -75,7 +74,7 @@ export function ExperienceCarousel() {
     <section id="feed" className="overflow-hidden pt-16 md:pt-24">
       {/* ── Sticky tab bar: no border, no background track ── */}
       <div
-        className="sticky top-[72px] z-40"
+        className="sticky top-18 z-40"
         style={{
           backdropFilter: "blur(16px)",
           WebkitBackdropFilter: "blur(16px)",
@@ -95,11 +94,12 @@ export function ExperienceCarousel() {
                 role="tab"
                 aria-selected={i === active}
                 onClick={() => navigate(i)}
-                className={`relative shrink-0 px-4 md:px-5 py-2.5 font-serif font-bold  md:text-lg whitespace-nowrap transition-colors duration-200 ${
-                  i === active
-                    ? "text-foreground"
-                    : "text-[#513333] cursor-pointer"
+                className={`relative shrink-0 px-4 md:px-5 py-2.5  font-bold  md:text-lg whitespace-nowrap transition-colors duration-200 ${
+                  i === active ? "text-foreground" : "cursor-pointer"
                 }`}
+                style={
+                  i === active ? undefined : { color: "var(--color-tab-muted)" }
+                }
               >
                 <span className="relative z-10">
                   {renderWithAnimatedVuew(slide.label)}
@@ -115,7 +115,7 @@ export function ExperienceCarousel() {
               style={{
                 width: `${progress}%`,
                 background:
-                  "linear-gradient(90deg, rgba(196,30,58,0.65), rgba(196,30,58,0.2))",
+                  "linear-gradient(90deg, var(--color-accent-strong), var(--color-accent-soft))",
               }}
             />
           </div>
@@ -163,16 +163,26 @@ export function ExperienceCarousel() {
         {/* Desktop prev/next arrows */}
         <Button
           variant="outline"
-          className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full"
           onClick={prev}
+          className="
+                    absolute left-4 top-1/2
+                    -translate-y-1/2
+                    w-12 h-12
+                    !rounded-full
+                  "
         >
           <ChevronLeft />
         </Button>
 
         <Button
           variant="outline"
-          className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full"
           onClick={next}
+          className="
+                    absolute right-4 top-1/2
+                    -translate-y-1/2
+                    w-12 h-12
+                    !rounded-full
+                  "
         >
           <ChevronRight />
         </Button>
@@ -191,8 +201,8 @@ export function ExperienceCarousel() {
               height: 6,
               background:
                 i === active
-                  ? "hsl(var(--foreground))"
-                  : "hsl(var(--foreground) / 0.18)",
+                  ? "var(--color-foreground)"
+                  : "var(--color-accent-muted)",
             }}
           />
         ))}

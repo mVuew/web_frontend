@@ -5,13 +5,16 @@ import { onAuthStateChanged, type User } from "firebase/auth";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { type FormEvent, useEffect, useMemo, useState } from "react";
-import {MVuewText} from "../../../components/ui/MVuewText";
+import { useMemo, useEffect, useState, type FormEvent } from "react";
+
+import { MVuewText } from "../../../components/ui/MVuewText";
+
 import {
   submitOnboarding,
   type OnboardingPayload,
   verifyAuthStatus,
 } from "../../../lib/api/user";
+
 import {
   firebaseAuth,
   isFirebaseConfigured,
@@ -36,61 +39,99 @@ const CATEGORY_OPTIONS = [
   "WORLD",
 ] as const;
 
-const cardStyles =
-  "relative overflow-hidden border border-black/10 bg-white/85 p-6 shadow-2xl shadow-black/10 backdrop-blur-md dark:border-white/15 dark:bg-black/45 dark:shadow-black/60 sm:p-8";
+const cardStyles = `
+relative
+overflow-hidden
+border border-border
+bg-surface
+p-6 sm:p-8
+shadow-xl
+backdrop-blur-md
+`;
 
-const inputStyles =
-  "w-full border border-black/20 bg-white/90 px-4 py-3 text-sm text-black placeholder:text-black/40 outline-none transition focus:border-red-700 focus:ring-2 focus:ring-red-700/20 dark:border-white/20 dark:bg-black/35 dark:text-white dark:placeholder:text-white/35 dark:focus:border-red-500 dark:focus:ring-red-500/20";
+const inputStyles = `
+w-full
+border border-border
+bg-surface
+px-4 py-3
+text-sm
+text-foreground
+placeholder:text-muted-foreground
+outline-none
+transition
+
+focus:border-[var(--color-accent-strong)]
+focus:ring-2
+focus:ring-[var(--color-accent)]/20
+`;
 
 function getNoticeClasses(tone: NoticeTone) {
   if (tone === "error") {
-    return "border-red-700/25 bg-red-700/10 text-red-800 dark:border-red-400/25 dark:bg-red-500/10 dark:text-red-300";
+    return `
+border border-border
+bg-surface
+text-foreground
+`;
   }
 
   if (tone === "success") {
-    return "border-emerald-700/25 bg-emerald-700/10 text-emerald-800 dark:border-emerald-400/25 dark:bg-emerald-500/10 dark:text-emerald-300";
+    return `
+border border-border
+bg-surface
+text-foreground
+`;
   }
 
-  return "border-blue-700/25 bg-blue-700/10 text-blue-800 dark:border-blue-400/25 dark:bg-blue-500/10 dark:text-blue-300";
+  return `
+border border-border
+bg-surface
+text-muted-foreground
+`;
 }
 
 function getOnboardingErrorMessage(error: unknown) {
   const code = (error as FirebaseError | undefined)?.code;
 
   if (code === "auth/user-token-expired") {
-    return "Your session expired. Please sign in again.";
+    return "Session expired. Sign in again.";
   }
 
   if (error instanceof Error) {
     return error.message;
   }
 
-  return "Unable to complete onboarding right now. Please try again.";
+  return "Unable to complete onboarding.";
 }
 
 export default function OnboardingPage() {
   const router = useRouter();
+
   const [user, setUser] = useState<User | null>(null);
+
   const [initializing, setInitializing] = useState(
     isFirebaseConfigured && Boolean(firebaseAuth),
   );
+
   const [busy, setBusy] = useState(false);
+
   const [isNewUser, setIsNewUser] = useState<boolean | null>(null);
+
   const [name, setName] = useState("");
   const [homeCountry, setHomeCountry] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [age, setAge] = useState("");
   const [profession, setProfession] = useState("");
+
   const [fcmToken, setFcmToken] = useState("cXs_Token_abc123");
+
   const [preferredCategories, setPreferredCategories] = useState<string[]>([]);
+
   const [notice, setNotice] = useState<Notice | null>(
     isFirebaseConfigured
       ? null
       : {
           tone: "error",
-          text: `Firebase is not configured. Missing: ${missingFirebaseEnv.join(
-            ", ",
-          )}`,
+          text: `Firebase missing: ${missingFirebaseEnv.join(", ")}`,
         },
   );
 
@@ -100,13 +141,13 @@ export default function OnboardingPage() {
     return (
       !busy &&
       name.trim().length >= 2 &&
-      homeCountry.trim().length > 0 &&
-      phoneNumber.trim().length > 0 &&
-      profession.trim().length > 0 &&
+      homeCountry &&
+      phoneNumber &&
+      profession &&
       Number.isInteger(ageNumber) &&
       ageNumber >= 13 &&
       preferredCategories.length > 0 &&
-      fcmToken.trim().length > 0
+      fcmToken
     );
   }, [
     age,
@@ -129,16 +170,17 @@ export default function OnboardingPage() {
     const verifyCurrentUser = async (authUser: User) => {
       try {
         setBusy(true);
-        setNotice({ tone: "info", text: "Checking onboarding status..." });
 
-        const idToken = await authUser.getIdToken();
-        const verifyResponse = await verifyAuthStatus(idToken);
+        setNotice({
+          tone: "info",
+          text: "Checking onboarding status...",
+        });
 
-        console.log("[Onboarding] Verify response", verifyResponse);
+        const token = await authUser.getIdToken();
 
-        if (!active) {
-          return;
-        }
+        const verifyResponse = await verifyAuthStatus(token);
+
+        if (!active) return;
 
         if (verifyResponse.onboarded) {
           router.replace("/news");
@@ -147,25 +189,30 @@ export default function OnboardingPage() {
 
         setUser(authUser);
         setIsNewUser(verifyResponse.newUser);
+
         setName(verifyResponse.user.name ?? authUser.displayName ?? "");
+
         setHomeCountry(verifyResponse.user.homeCountry ?? "");
+
         setPhoneNumber(verifyResponse.user.phoneNumber ?? "");
+
         setAge(verifyResponse.user.age ? String(verifyResponse.user.age) : "");
+
         setProfession(verifyResponse.user.profession ?? "");
+
         setPreferredCategories(verifyResponse.user.preferredCategories ?? []);
+
         setNotice({
           tone: "info",
           text: "Complete onboarding to unlock your personalized feed.",
         });
       } catch (error) {
-        if (!active) {
-          return;
+        if (active) {
+          setNotice({
+            tone: "error",
+            text: getOnboardingErrorMessage(error),
+          });
         }
-
-        setNotice({
-          tone: "error",
-          text: getOnboardingErrorMessage(error),
-        });
       } finally {
         if (active) {
           setBusy(false);
@@ -174,13 +221,9 @@ export default function OnboardingPage() {
       }
     };
 
-    const unsubscribe = onAuthStateChanged(firebaseAuth, (authUser) => {
+    const unsub = onAuthStateChanged(firebaseAuth, (authUser) => {
       if (!authUser) {
-        if (active) {
-          setInitializing(false);
-          router.replace("/auth");
-        }
-
+        router.replace("/auth");
         return;
       }
 
@@ -189,55 +232,41 @@ export default function OnboardingPage() {
 
     return () => {
       active = false;
-      unsubscribe();
+      unsub();
     };
   }, [router]);
 
   function toggleCategory(category: string) {
-    setPreferredCategories((previous) => {
-      if (previous.includes(category)) {
-        return previous.filter((item) => item !== category);
-      }
-
-      return [...previous, category];
-    });
+    setPreferredCategories((prev) =>
+      prev.includes(category)
+        ? prev.filter((c) => c !== category)
+        : [...prev, category],
+    );
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
 
     if (!user) {
-      setNotice({
-        tone: "error",
-        text: "No active user session found. Please sign in again.",
-      });
       router.replace("/auth");
       return;
     }
 
     const parsedAge = Number(age);
 
-    if (!Number.isInteger(parsedAge) || parsedAge < 13) {
+    if (parsedAge < 13) {
       setNotice({
         tone: "error",
-        text: "Please provide a valid age (13 or above).",
-      });
-      return;
-    }
-
-    if (preferredCategories.length === 0) {
-      setNotice({
-        tone: "error",
-        text: "Select at least one preferred category.",
+        text: "Age must be at least 13.",
       });
       return;
     }
 
     setBusy(true);
-    setNotice({ tone: "info", text: "Saving onboarding details..." });
 
     try {
-      const idToken = await user.getIdToken();
+      const token = await user.getIdToken();
+
       const payload: OnboardingPayload = {
         name: name.trim(),
         preferredCategories,
@@ -248,16 +277,8 @@ export default function OnboardingPage() {
         fcmToken: fcmToken.trim(),
       };
 
-      console.log("[Onboarding] Submitting payload", payload);
+      await submitOnboarding(token, payload);
 
-      const onboardingResponse = await submitOnboarding(idToken, payload);
-
-      console.log("[Onboarding] Onboarding response", onboardingResponse);
-
-      setNotice({
-        tone: "success",
-        text: "Onboarding completed. Redirecting to your feed...",
-      });
       router.push("/news");
     } catch (error) {
       setNotice({
@@ -270,253 +291,305 @@ export default function OnboardingPage() {
   }
 
   return (
-    <main className="relative min-h-[calc(100dvh-160px)] overflow-hidden px-4 py-14 sm:px-6">
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -left-20 top-10 h-64 w-64 rounded-full bg-red-700/15 blur-3xl dark:bg-red-500/20" />
-        <div className="absolute -right-20 top-36 h-72 w-72 rounded-full bg-black/10 blur-3xl dark:bg-white/10" />
-        <div className="absolute bottom-0 left-1/2 h-56 w-3xl -translate-x-1/2 bg-linear-to-r from-transparent via-red-700/15 to-transparent blur-2xl dark:via-red-500/20" />
+    <main
+      className="
+relative
+min-h-screen
+overflow-hidden
+bg-background
+text-foreground
+px-4 py-28 sm:px-6
+"
+    >
+      {/* theme atmosphere */}
+      <div className="absolute inset-0 -z-10">
+        <div
+          className="absolute inset-0"
+          style={{
+            background: "var(--theme-dark-global-gradient)",
+          }}
+        />
       </div>
 
-      <div className="relative mx-auto grid w-full max-w-6xl gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
+      <div
+        className="
+mx-auto
+grid
+max-w-6xl
+gap-10
+lg:grid-cols-[1.05fr_.95fr]
+lg:items-start
+"
+      >
+        {/* LEFT */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.6 }}
           className="space-y-8"
         >
-          <p className="text-xs uppercase tracking-[0.2em] text-black/60 dark:text-white/60">
+          <p
+            className="
+text-xs
+uppercase
+tracking-[0.2em]
+text-muted-foreground
+"
+          >
             Onboarding Flow
           </p>
 
           <div className="space-y-5">
-            <h1 className="text-5xl font-medium leading-[1.05] tracking-tight text-black dark:text-white sm:text-6xl lg:text-7xl">
+            <h1
+              className="
+text-5xl
+sm:text-6xl
+lg:text-7xl
+tracking-tight
+leading-[1.05]
+"
+            >
               <span className="block">
                 <MVuewText />
               </span>
-              <span className="block text-black/80 dark:text-white/85">
+
+              <span className="block">
                 set your{" "}
-                <span className="text-red-700 dark:text-red-400">
+                <span
+                  style={{
+                    color: "var(--color-accent-strong)",
+                  }}
+                >
                   signal profile
                 </span>
               </span>
             </h1>
-            <p className="max-w-lg text-base leading-relaxed text-black/70 dark:text-white/70 sm:text-lg">
-              Tell us what matters to you so we can build a smarter, more
-              relevant feed from day one.
+
+            <p
+              className="
+max-w-lg
+text-base sm:text-lg
+leading-relaxed
+text-muted-foreground
+"
+            >
+              Shape your multi-perspective feed around what matters to you.
             </p>
           </div>
 
-          <div className="grid max-w-xl gap-4 sm:grid-cols-2">
+          <div
+            className="
+grid gap-4
+sm:grid-cols-2
+max-w-xl
+"
+          >
             <div className={cardStyles}>
-              <p className="text-xs uppercase tracking-[0.18em] text-black/55 dark:text-white/55">
+              <p
+                className="
+text-xs uppercase
+tracking-[0.18em]
+text-muted-foreground
+"
+              >
                 Account State
               </p>
-              <p className="mt-2 font-serif text-lg text-black/80 dark:text-white/85">
+
+              <p className="mt-2 text-lg">
                 {isNewUser === null
-                  ? "Checking your profile"
+                  ? "Checking profile"
                   : isNewUser
                     ? "New user detected"
-                    : "Existing user profile found"}
+                    : "Existing user found"}
               </p>
             </div>
+
             <div className={cardStyles}>
-              <p className="text-xs uppercase tracking-[0.18em] text-black/55 dark:text-white/55">
+              <p
+                className="
+text-xs uppercase
+tracking-[0.18em]
+text-muted-foreground
+"
+              >
                 Next Step
               </p>
-              <p className="mt-2 font-serif text-lg text-black/80 dark:text-white/85">
-                Finish setup and continue to your personalized news dashboard.
-              </p>
+
+              <p className="mt-2 text-lg">Complete setup and continue.</p>
             </div>
           </div>
 
           <Link
             href="/auth"
-            className="inline-flex items-center gap-2 border border-black/20 px-5 py-2.5 text-sm font-medium text-black transition hover:border-black/40 hover:bg-black/5 dark:border-white/30 dark:text-white dark:hover:bg-white/10"
+            className="
+inline-flex
+border border-border
+bg-surface
+px-5 py-3
+text-sm
+transition
+hover:bg-accent-soft
+"
           >
             Back to sign in
           </Link>
         </motion.section>
 
+        {/* RIGHT */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+          transition={{
+            duration: 0.6,
+            delay: 0.08,
+          }}
           className={cardStyles}
         >
-          <div className="relative z-10">
-            <h2 className="text-xl font-semibold text-black dark:text-white">
-              Complete your profile
-            </h2>
-            <p className="mt-1 text-sm text-black/65 dark:text-white/65">
-              Fields map to the onboarding request body in your API walkthrough.
-            </p>
+          <h2 className="text-xl font-semibold">Complete your profile</h2>
 
-            {initializing ? (
-              <p className="mt-6 border border-blue-700/25 bg-blue-700/10 p-3 text-sm text-blue-800 dark:border-blue-400/25 dark:bg-blue-500/10 dark:text-blue-300">
-                Preparing your onboarding form...
-              </p>
-            ) : (
-              <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-                <div className="space-y-2">
-                  <label
-                    htmlFor="name"
-                    className="text-xs uppercase tracking-[0.16em] text-black/60 dark:text-white/60"
-                  >
-                    Name
-                  </label>
-                  <input
-                    id="name"
-                    type="text"
-                    value={name}
-                    onChange={(event) => setName(event.target.value)}
-                    className={inputStyles}
-                    placeholder="John Doe"
-                    required
-                  />
-                </div>
+          <p
+            className="
+mt-1 text-sm
+text-muted-foreground
+"
+          >
+            Personalize your intelligence feed.
+          </p>
 
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <label
-                      htmlFor="homeCountry"
-                      className="text-xs uppercase tracking-[0.16em] text-black/60 dark:text-white/60"
-                    >
-                      Home country
-                    </label>
-                    <input
-                      id="homeCountry"
-                      type="text"
-                      value={homeCountry}
-                      onChange={(event) => setHomeCountry(event.target.value)}
-                      className={inputStyles}
-                      placeholder="India"
-                      required
-                    />
-                  </div>
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            <input
+              placeholder="Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className={inputStyles}
+            />
 
-                  <div className="space-y-2">
-                    <label
-                      htmlFor="age"
-                      className="text-xs uppercase tracking-[0.16em] text-black/60 dark:text-white/60"
-                    >
-                      Age
-                    </label>
-                    <input
-                      id="age"
-                      type="number"
-                      min={13}
-                      value={age}
-                      onChange={(event) => setAge(event.target.value)}
-                      className={inputStyles}
-                      placeholder="28"
-                      required
-                    />
-                  </div>
-                </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <input
+                placeholder="Home Country"
+                value={homeCountry}
+                onChange={(e) => setHomeCountry(e.target.value)}
+                className={inputStyles}
+              />
 
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <label
-                      htmlFor="phoneNumber"
-                      className="text-xs uppercase tracking-[0.16em] text-black/60 dark:text-white/60"
-                    >
-                      Phone number
-                    </label>
-                    <input
-                      id="phoneNumber"
-                      type="tel"
-                      value={phoneNumber}
-                      onChange={(event) => setPhoneNumber(event.target.value)}
-                      className={inputStyles}
-                      placeholder="+919876543210"
-                      required
-                    />
-                  </div>
+              <input
+                placeholder="Age"
+                value={age}
+                onChange={(e) => setAge(e.target.value)}
+                className={inputStyles}
+              />
+            </div>
 
-                  <div className="space-y-2">
-                    <label
-                      htmlFor="profession"
-                      className="text-xs uppercase tracking-[0.16em] text-black/60 dark:text-white/60"
-                    >
-                      Profession
-                    </label>
-                    <input
-                      id="profession"
-                      type="text"
-                      value={profession}
-                      onChange={(event) => setProfession(event.target.value)}
-                      className={inputStyles}
-                      placeholder="Software Engineer"
-                      required
-                    />
-                  </div>
-                </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <input
+                placeholder="Phone"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                className={inputStyles}
+              />
 
-                <div className="space-y-2">
-                  <label
-                    htmlFor="fcmToken"
-                    className="text-xs uppercase tracking-[0.16em] text-black/60 dark:text-white/60"
-                  >
-                    FCM token
-                  </label>
-                  <input
-                    id="fcmToken"
-                    type="text"
-                    value={fcmToken}
-                    onChange={(event) => setFcmToken(event.target.value)}
-                    className={inputStyles}
-                    placeholder="cXs_Token_abc123"
-                    required
-                  />
-                </div>
+              <input
+                placeholder="Profession"
+                value={profession}
+                onChange={(e) => setProfession(e.target.value)}
+                className={inputStyles}
+              />
+            </div>
 
-                <div className="space-y-2">
-                  <p className="text-xs uppercase tracking-[0.16em] text-black/60 dark:text-white/60">
-                    Preferred categories
-                  </p>
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                    {CATEGORY_OPTIONS.map((category) => {
-                      const selected = preferredCategories.includes(category);
+            <input
+              placeholder="FCM Token"
+              value={fcmToken}
+              onChange={(e) => setFcmToken(e.target.value)}
+              className={inputStyles}
+            />
 
-                      return (
-                        <button
-                          key={category}
-                          type="button"
-                          onClick={() => toggleCategory(category)}
-                          className={`border px-3 py-2 text-xs font-medium uppercase tracking-wider transition ${
-                            selected
-                              ? "border-red-700 bg-red-700 text-white dark:border-red-500 dark:bg-red-500"
-                              : "border-black/20 bg-white/70 text-black/75 hover:bg-black/5 dark:border-white/20 dark:bg-white/10 dark:text-white/80 dark:hover:bg-white/15"
-                          }`}
-                        >
-                          {category}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={!canSubmit || busy}
-                  className="w-full border border-red-700 bg-red-700 px-4 py-3 text-sm font-medium uppercase tracking-[0.14em] text-white transition hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-500 dark:bg-red-500 dark:hover:bg-red-600"
-                >
-                  {busy ? "Saving" : "Complete onboarding"}
-                </button>
-              </form>
-            )}
-
-            {notice ? (
+            <div className="space-y-3">
               <p
-                className={`mt-5 border p-3 text-sm leading-relaxed ${getNoticeClasses(
-                  notice.tone,
-                )}`}
-                role="status"
+                className="
+text-xs uppercase
+tracking-[0.16em]
+text-muted-foreground
+"
               >
-                {notice.text}
+                Preferred categories
               </p>
-            ) : null}
-          </div>
+
+              <div
+                className="
+grid
+grid-cols-2
+sm:grid-cols-4
+gap-2
+"
+              >
+                {CATEGORY_OPTIONS.map((category) => {
+                  const selected = preferredCategories.includes(category);
+
+                  return (
+                    <button
+                      key={category}
+                      type="button"
+                      onClick={() => toggleCategory(category)}
+                      className={`
+border
+px-3 py-2
+text-xs
+uppercase
+tracking-wider
+transition
+
+${
+  selected
+    ? `
+bg-surface
+border-(--color-accent-strong)
+text-foreground
+`
+    : `
+border-border
+bg-background
+text-muted-foreground
+hover:bg-surface
+`
+}
+`}
+                    >
+                      {category}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={!canSubmit || busy}
+              className="
+w-full
+border border-border
+bg-surface
+px-4 py-3
+uppercase
+tracking-[0.14em]
+transition
+hover:bg-accent-soft
+disabled:opacity-50
+"
+            >
+              {busy ? "Saving..." : "Complete onboarding"}
+            </button>
+          </form>
+
+          {notice && (
+            <p
+              className={`
+mt-5 p-3 text-sm
+${getNoticeClasses(notice.tone)}
+`}
+            >
+              {notice.text}
+            </p>
+          )}
         </motion.section>
       </div>
     </main>

@@ -9,13 +9,23 @@ import { firebaseAuth } from "../../../lib/firebase";
 import { onAuthStateChanged, signOut, type User } from "firebase/auth";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { MVuewText } from "@/components/ui/MVuewText";
 
 export default function News() {
+  return (
+    <Suspense fallback={<div className="min-h-dvh" />}>
+      <NewsContent />
+    </Suspense>
+  );
+}
+
+function NewsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(
+    () => firebaseAuth?.currentUser ?? null,
+  );
   const [signingOut, setSigningOut] = useState(false);
 
   useEffect(() => {

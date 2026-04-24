@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion } from "framer-motion";
 
 interface Source {
   name: string;
@@ -7,16 +7,16 @@ interface Source {
 }
 
 const sources: Source[] = [
-  { name: 'Reuters',         x: 72, y: 12 },
-  { name: 'BBC News',        x: 42, y: 8  },
-  { name: 'NYT',             x: 14, y: 22 },
-  { name: 'WSJ',             x: 5,  y: 50 },
-  { name: 'The Hindu',       x: 16, y: 78 },
-  { name: 'Al Jazeera',      x: 44, y: 88 },
-  { name: 'Financial Times', x: 74, y: 82 },
-  { name: 'Le Monde',        x: 90, y: 52 },
-  { name: 'Nikkei',          x: 86, y: 24 },
-  { name: 'The Guardian',    x: 60, y: 10 },
+  { name: "Reuters", x: 72, y: 12 },
+  { name: "BBC News", x: 42, y: 8 },
+  { name: "NYT", x: 14, y: 22 },
+  { name: "WSJ", x: 5, y: 50 },
+  { name: "The Hindu", x: 16, y: 78 },
+  { name: "Al Jazeera", x: 44, y: 88 },
+  { name: "Financial Times", x: 74, y: 82 },
+  { name: "Le Monde", x: 90, y: 52 },
+  { name: "Nikkei", x: 86, y: 24 },
+  { name: "The Guardian", x: 60, y: 10 },
 ];
 
 const CENTER = { x: 50, y: 50 };
@@ -27,13 +27,33 @@ function arcPath(sx: number, sy: number) {
   return `M ${sx} ${sy} Q ${mx} ${my} ${CENTER.x} ${CENTER.y}`;
 }
 
-const paths = sources.map(s => arcPath(s.x, s.y));
+const paths = sources.map((s) => arcPath(s.x, s.y));
 
-function FlowDot({ path, dur, begin }: { path: string; dur: number; begin: string }) {
+function FlowDot({
+  path,
+  dur,
+  begin,
+}: {
+  path: string;
+  dur: number;
+  begin: string;
+}) {
   return (
     <circle r="0.9" fill="currentColor" opacity="0">
-      <animate attributeName="opacity" values="0;0.8;0" dur={`${dur}s`} begin={begin} repeatCount="indefinite" keyTimes="0;0.2;1" />
-      <animateMotion path={path} dur={`${dur}s`} begin={begin} repeatCount="indefinite" />
+      <animate
+        attributeName="opacity"
+        values="0;0.8;0"
+        dur={`${dur}s`}
+        begin={begin}
+        repeatCount="indefinite"
+        keyTimes="0;0.2;1"
+      />
+      <animateMotion
+        path={path}
+        dur={`${dur}s`}
+        begin={begin}
+        repeatCount="indefinite"
+      />
     </circle>
   );
 }
@@ -43,15 +63,27 @@ export function GlobalFeedIllustration() {
     <motion.svg
       viewBox="0 0 100 100"
       className="w-full h-full text-foreground"
-      style={{ overflow: 'visible' }}
+      style={{ overflow: "visible" }}
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       viewport={{ once: true }}
       transition={{ duration: 1.2 }}
     >
       {/* Outer glow ring */}
-      <circle cx={CENTER.x} cy={CENTER.y} r="7" fill="currentColor" opacity="0.04" />
-      <circle cx={CENTER.x} cy={CENTER.y} r="4.5" fill="currentColor" opacity="0.06" />
+      <circle
+        cx={CENTER.x}
+        cy={CENTER.y}
+        r="7"
+        fill="currentColor"
+        opacity="0.04"
+      />
+      <circle
+        cx={CENTER.x}
+        cy={CENTER.y}
+        r="4.5"
+        fill="currentColor"
+        opacity="0.06"
+      />
 
       {/* Connection lines */}
       {sources.map((s, i) => (
@@ -71,17 +103,48 @@ export function GlobalFeedIllustration() {
         [0, 1.4, 2.8].map((offset, j) => {
           const dur = 2.6 + (i % 3) * 0.3;
           const begin = `${i * 0.22 + offset}s`;
-          return <FlowDot key={`${i}-${j}`} path={paths[i]} dur={dur} begin={begin} />;
-        })
+          return (
+            <FlowDot
+              key={`${i}-${j}`}
+              path={paths[i]}
+              dur={dur}
+              begin={begin}
+            />
+          );
+        }),
       )}
 
       {/* Center orb */}
-      <circle cx={CENTER.x} cy={CENTER.y} r="2.2" fill="currentColor" opacity="0.85" />
+      <circle
+        cx={CENTER.x}
+        cy={CENTER.y}
+        r="2.2"
+        fill="currentColor"
+        opacity="0.85"
+      />
 
       {/* Pulsing ring */}
-      <circle cx={CENTER.x} cy={CENTER.y} r="2.2" fill="none" stroke="currentColor" strokeWidth="0.4" opacity="0.3">
-        <animate attributeName="r" values="2.2;6;2.2" dur="3s" repeatCount="indefinite" />
-        <animate attributeName="opacity" values="0.3;0;0.3" dur="3s" repeatCount="indefinite" />
+      <circle
+        cx={CENTER.x}
+        cy={CENTER.y}
+        r="2.2"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="0.4"
+        opacity="0.3"
+      >
+        <animate
+          attributeName="r"
+          values="2.2;6;2.2"
+          dur="3s"
+          repeatCount="indefinite"
+        />
+        <animate
+          attributeName="opacity"
+          values="0.3;0;0.3"
+          dur="3s"
+          repeatCount="indefinite"
+        />
       </circle>
 
       {/* Source nodes */}
@@ -92,10 +155,10 @@ export function GlobalFeedIllustration() {
             x={s.x + (s.x < CENTER.x ? -2.2 : 2.2)}
             y={s.y + (s.y < 30 ? -1.8 : s.y > 70 ? 2.6 : 0.5)}
             fontSize="2.8"
-            fontFamily="Inter, sans-serif"
+            fontFamily="var(--font-site), sans-serif"
             fill="currentColor"
             opacity="0.4"
-            textAnchor={s.x < CENTER.x ? 'end' : 'start'}
+            textAnchor={s.x < CENTER.x ? "end" : "start"}
           >
             {s.name}
           </text>
@@ -107,7 +170,7 @@ export function GlobalFeedIllustration() {
         x={CENTER.x}
         y={CENTER.y + 8}
         fontSize="2.6"
-        fontFamily="'Playfair Display', serif"
+        fontFamily="var(--font-site), sans-serif"
         fill="currentColor"
         opacity="0.45"
         textAnchor="middle"
