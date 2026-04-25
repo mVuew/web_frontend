@@ -1,27 +1,19 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 
 import { PhoneMockup3D } from "./../../ui/PhoneMockup3D";
-import { MVuewText } from "../../ui/MVuewText";
-import Button from "../../ui/button";
-import EarlyAccessModal from "../../modals/EarlyAccessModal";
+
+import CTA from "@/components/atoms/CTA";
 
 export function Hero() {
-  const [modalOpen, setModalOpen] = useState(false);
-
   return (
     <>
-      <EarlyAccessModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-      />
-
       <section
         className="
           relative
-          min-h-dvh
+          min-h-[92dvh] sm:min-h-dvh
           flex flex-col
           items-center
           justify-center
@@ -33,7 +25,7 @@ export function Hero() {
           <div className="absolute inset-0" />
 
           {/* subtle grid texture */}
-          <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,currentColor_1px,transparent_1px),linear-gradient(to_bottom,currentColor_1px,transparent_1px)] bg-[size:42px_42px] text-foreground" />
+          <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,currentColor_1px,transparent_1px),linear-gradient(to_bottom,currentColor_1px,transparent_1px)] bg-size-[42px_42px] text-foreground" />
         </div>
 
         <div
@@ -44,16 +36,18 @@ export function Hero() {
             mx-auto
             max-w-6xl
             grid
+            px-4 sm:px-6
             lg:grid-cols-2
-            gap-12
+            gap-8 sm:gap-10 lg:gap-12
             items-center
-            min-h-dvh
+            min-h-[92dvh] sm:min-h-dvh
             lg:min-h-0
+            py-18 sm:py-20
             lg:py-32
           "
         >
           {/* LEFT */}
-          <div className="space-y-10 text-center lg:text-left">
+          <div className="space-y-7 sm:space-y-8 lg:space-y-10 text-center lg:text-left">
             <motion.div
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
@@ -61,7 +55,7 @@ export function Hero() {
                 duration: 1.2,
                 ease: [0.16, 1, 0.3, 1],
               }}
-              className="space-y-6"
+              className="space-y-4 sm:space-y-5 lg:space-y-6"
             >
               {/* Eyebrow */}
               <div
@@ -79,7 +73,7 @@ export function Hero() {
               </div>
 
               {/* Headline */}
-              <h1 className="font-medium tracking-tight text-foreground leading-[1.08]">
+              {/* <h1 className="font-medium tracking-tight text-foreground leading-[1.08]">
                 <span className="block text-6xl sm:text-7xl md:text-8xl lg:text-[7rem]">
                   <MVuewText />
                 </span>
@@ -94,62 +88,26 @@ export function Hero() {
                     narratives.
                   </span>
                 </span>
+              </h1> */}
+              <h1 className="block text-3xl font-medium leading-tight sm:text-4xl md:text-5xl lg:text-6xl">
+                The Only Way to Understand the News Easily
               </h1>
 
               <p
                 className="
                   mx-auto lg:mx-0
                   max-w-xl
-                  text-base md:text-lg
+                  text-sm sm:text-base md:text-lg
                   text-muted-foreground
                   leading-relaxed
                 "
               >
-                Explore competing perspectives, compare signals, and decide for
-                yourself what is true.
+                mVuew turns confusing, scattered updates into one simple view so
+                you can see what happened, why it happened, and what it means.
               </p>
             </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{
-                delay: 0.5,
-                duration: 1,
-              }}
-              className="
-                flex
-                flex-col sm:flex-row
-                gap-4
-                justify-center
-                lg:justify-start
-              "
-            >
-              <Button
-                size="lg"
-                className="
-                  rounded-none
-                  px-10
-                  py-6
-                  md:text-lg
-                "
-                onClick={() => setModalOpen(true)}
-              >
-                Request Early Access
-              </Button>
-
-              <button
-                className="
-                  px-10 py-6
-                  border border-border
-                  text-foreground
-                  hover:bg-surface
-                  transition
-                "
-              >
-                See How It Works
-              </button>
-            </motion.div>
+            <CTA />
           </div>
 
           {/* Desktop phones */}
@@ -201,54 +159,6 @@ export function Hero() {
                 src="/images/app-splash.jpeg"
                 alt="mVuew"
                 delay={0}
-              />
-            </motion.div>
-          </div>
-
-          {/* Mobile */}
-          <div
-            className="
-              lg:hidden
-              flex justify-center
-              items-end
-              gap-3
-              w-full overflow-hidden
-            "
-            style={{ height: "280px" }}
-          >
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                duration: 0.9,
-                delay: 0.2,
-              }}
-              style={{
-                transform: "scale(.46) rotateY(-6deg)",
-                transformOrigin: "bottom center",
-                flexShrink: 0,
-              }}
-            >
-              <PhoneMockup3D src="/images/app-splash.jpeg" alt="mVuew" />
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                duration: 0.9,
-                delay: 0.4,
-              }}
-              style={{
-                transform: "scale(.43) rotateY(6deg)",
-                transformOrigin: "bottom center",
-                flexShrink: 0,
-              }}
-            >
-              <PhoneMockup3D
-                src="/images/app-story-detail.jpeg"
-                alt="Perspective Comparison"
-                delay={0.3}
               />
             </motion.div>
           </div>

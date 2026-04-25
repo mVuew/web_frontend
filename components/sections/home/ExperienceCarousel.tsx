@@ -1,21 +1,23 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   FeedSection,
   PerspectivesSection,
   TimelineSection,
   ExpertSection,
+  OneView,
+  CalmExperience,
 } from "./Experience";
 import { renderWithAnimatedVuew } from "@/components/ui/AnimatedVuew";
-import Button from "@/components/ui/button";
 
 const SLIDES = [
-  { label: "my-Vuew", Component: FeedSection },
-  { label: "multi-Vuew", Component: PerspectivesSection },
-  { label: "meta-Vuew", Component: TimelineSection },
-  { label: "Expert Vuew", Component: ExpertSection },
+  { label: "Summary", Component: FeedSection },
+  { label: "Multiple Perspective", Component: PerspectivesSection },
+  { label: "Timeline", Component: TimelineSection },
+  { label: "Expert Insights", Component: ExpertSection },
+  { label: "One View", Component: OneView },
+  { label: "Calm Experience", Component: CalmExperience },
 ] as const;
 
 const AUTO_MS = 14000;
@@ -71,17 +73,20 @@ export function ExperienceCarousel() {
   const { Component } = SLIDES[active];
 
   return (
-    <section id="feed" className="overflow-hidden pt-16 md:pt-24">
+    <section
+      id="feed"
+      className="relative overflow-hidden pt-12 sm:pt-16 md:pt-24"
+    >
       {/* ── Sticky tab bar: no border, no background track ── */}
       <div
-        className="sticky top-18 z-40"
+        className="sticky top-14 z-40 sm:top-16 md:top-18"
         style={{
           backdropFilter: "blur(16px)",
           WebkitBackdropFilter: "blur(16px)",
           background: "transparent",
         }}
       >
-        <div className="container mx-auto px-4 max-w-6xl">
+        <div className="container mx-auto max-w-6xl px-3 sm:px-4">
           <div
             role="tablist"
             aria-label="Experience sections"
@@ -94,7 +99,7 @@ export function ExperienceCarousel() {
                 role="tab"
                 aria-selected={i === active}
                 onClick={() => navigate(i)}
-                className={`relative shrink-0 px-4 md:px-5 py-2.5  font-bold  md:text-lg whitespace-nowrap transition-colors duration-200 ${
+                className={`relative shrink-0 whitespace-nowrap px-3 py-2 text-xs font-bold transition-colors duration-200 sm:px-4 sm:text-sm md:px-5 md:py-2.5 md:text-lg ${
                   i === active ? "text-foreground" : "cursor-pointer"
                 }`}
                 style={
@@ -159,37 +164,10 @@ export function ExperienceCarousel() {
             <Component />
           </motion.div>
         </AnimatePresence>
-
-        {/* Desktop prev/next arrows */}
-        <Button
-          variant="outline"
-          onClick={prev}
-          className="
-                    absolute left-4 top-1/2
-                    -translate-y-1/2
-                    w-12 h-12
-                    !rounded-full
-                  "
-        >
-          <ChevronLeft />
-        </Button>
-
-        <Button
-          variant="outline"
-          onClick={next}
-          className="
-                    absolute right-4 top-1/2
-                    -translate-y-1/2
-                    w-12 h-12
-                    !rounded-full
-                  "
-        >
-          <ChevronRight />
-        </Button>
       </div>
 
       {/* ── Bottom pill indicators (no text) ── */}
-      <div className="flex justify-center items-center gap-2 pt-0 pb-5">
+      <div className="flex items-center justify-center gap-2 pb-5 pt-0 md:pb-6">
         {SLIDES.map((_, i) => (
           <button
             key={i}

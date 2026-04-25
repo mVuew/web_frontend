@@ -48,7 +48,7 @@ const socials = [
 
 export function Footer() {
   return (
-    <footer className="border-t border-zinc-800  py-6">
+    <footer className="border-t border-zinc-800  py-20">
       <div className="container mx-auto px-4 max-w-6xl flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
         {/* Left: Logo + copyright */}
@@ -71,6 +71,9 @@ export function Footer() {
           </Link>
           <Link href="/cookies" className="hover:text-white transition">
             Cookies
+          </Link>
+          <Link href="/about" className="hover:text-white transition">
+            About
           </Link>
         </div>
 

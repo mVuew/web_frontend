@@ -7,8 +7,8 @@ import { useEffect, useState } from "react";
 import colors from "../../constants/colors";
 import { firebaseAuth } from "../../lib/firebase";
 import { MVuewText } from "../ui/MVuewText";
-import ProfileMenu from "../ui/ProfileMenu";
 import ThemeToggle from "../ui/ThemeToggle";
+import EarlyAccessModal from "@/components/modals/EarlyAccessModal";
 
 export default function Header() {
   const router = useRouter();
@@ -20,6 +20,13 @@ export default function Header() {
 
   const [showHeader, setShowHeader] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+
+  const handleNavigation = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   useEffect(() => {
     if (!firebaseAuth) return;
@@ -62,9 +69,16 @@ export default function Header() {
   const profileLabel =
     user?.displayName ?? user?.email?.split("@")[0] ?? "Profile";
 
+  const [modalOpen, setModalOpen] = useState(false);
   return (
-    <header
-      className={`
+    <>
+      <EarlyAccessModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+      />
+
+      <header
+        className={`
         fixed top-0 left-0 w-full z-50
         transition-transform duration-300
         ${showHeader ? "translate-y-0" : "-translate-y-full"}
@@ -72,15 +86,25 @@ export default function Header() {
         bg-background/85
         backdrop-blur-xl
         border-b border-border
-        supports-[backdrop-filter]:bg-background/70
+        supports-backdrop-filter:bg-background/70
       `}
-    >
-      <div className="max-w-7xl mx-auto h-16 px-6 flex items-center justify-between">
-        {/* Logo */}
-        <Link href="/" className="group flex items-center">
-          <MVuewText
-            timingScale={1.8}
-            className={`
+      >
+        <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between px-3 sm:h-16 sm:px-4 lg:px-6">
+          {/* Logo */}
+          <Link href="/" className="group flex items-center">
+            {/* <MVuewText
+              timingScale={1.8}
+              className={`
+              text-xl sm:text-2xl md:text-3xl
+              font-semibold
+              tracking-tight
+              ${colors.text}
+              transition-opacity
+              group-hover:opacity-80
+            `}
+            /> */}
+            <h1
+              className={`
               text-2xl md:text-3xl
               font-semibold
               tracking-tight
@@ -88,31 +112,56 @@ export default function Header() {
               transition-opacity
               group-hover:opacity-80
             `}
-          />
-        </Link>
-
-        {/* Nav */}
-        <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
-          {["Why mVuew?", "Experiences", "Pricing", "About"].map((item) => (
-            <Link
-              key={item}
-              href="#"
-              className="
-                text-muted-foreground
-                transition-colors duration-200
-                hover:text-foreground
-              "
             >
-              {item}
+              mVuew
+            </h1>
+          </Link>
+
+          {/* Nav */}
+          <nav className="hidden md:flex items-center gap-4 text-sm font-medium lg:gap-8">
+            <button
+              onClick={() => handleNavigation("section-why")}
+              className="
+              text-muted-foreground
+              transition-colors duration-200
+              hover:text-foreground
+              bg-transparent
+              border-none
+              cursor-pointer
+            "
+            >
+              Why mVuew?
+            </button>
+            <button
+              onClick={() => handleNavigation("section-experience")}
+              className="
+              text-muted-foreground
+              transition-colors duration-200
+              hover:text-foreground
+              bg-transparent
+              border-none
+              cursor-pointer
+            "
+            >
+              Experiences
+            </button>
+            <Link
+              href="/about"
+              className="
+              text-muted-foreground
+              transition-colors duration-200
+              hover:text-foreground
+            "
+            >
+              About
             </Link>
-          ))}
-        </nav>
+          </nav>
 
-        {/* Right */}
-        <div className="flex items-center gap-3">
-          <ThemeToggle />
+          {/* Right */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <ThemeToggle />
 
-          {user ? (
+            {/* {user ? (
             <ProfileMenu
               profileLabel={profileLabel}
               profileHref="/onboarding"
@@ -137,9 +186,31 @@ export default function Header() {
             >
               Sign In
             </Link>
-          )}
+          )} */}
+
+            <div>
+              <button
+                onClick={() => setModalOpen(true)}
+                className="
+                px-3 py-2 sm:px-4
+                rounded-xl
+                text-xs sm:text-sm
+                font-medium
+                transition-all
+                border border-border
+                bg-surface
+                text-foreground
+                hover:bg-accent/10
+                hover:border-slate-500
+                whitespace-nowrap
+              "
+              >
+                Early Access
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+    </>
   );
 }

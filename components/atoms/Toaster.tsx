@@ -69,7 +69,7 @@ z-50
         >
           <div
             className="
-relative
+relative 
 w-80
 max-w-[92vw]
 
@@ -78,6 +78,7 @@ bg-surface
 shadow-2xl
 overflow-hidden
 "
+
           >
             {/* top accent */}
             <div

@@ -1,12 +1,7 @@
 "use client";
 
 import React, { useRef } from "react";
-import {
-  motion,
-  useMotionValue,
-  useSpring,
-  useTransform,
-} from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 
 // simple cn (no external file needed)
 function cn(...classes: (string | undefined | false | null)[]) {
@@ -37,12 +32,12 @@ export function PhoneMockup3D({
 
   const rotateX = useSpring(
     useTransform(mouseY, [-0.5, 0.5], [10, -10]),
-    springConfig
+    springConfig,
   );
 
   const rotateY = useSpring(
     useTransform(mouseX, [-0.5, 0.5], [-10, 10]),
-    springConfig
+    springConfig,
   );
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -66,8 +61,8 @@ export function PhoneMockup3D({
     <div
       ref={ref}
       className={cn(
-        "relative w-[300px] h-[610px] mx-auto group",
-        className
+        "relative mx-auto group w-50 h-100 sm:w-32 sm:h-64 md:w-75 md:h-152.5",
+        className,
       )}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
@@ -97,15 +92,14 @@ export function PhoneMockup3D({
         />
 
         {/* Phone */}
-        <div className="relative w-full h-full bg-[#111] rounded-[44px] p-2 shadow-2xl border-4 border-black/90 ring-1 ring-white/10 overflow-hidden flex flex-col">
-          
+        <div className="relative flex h-full w-full flex-col overflow-hidden rounded-[20px] border-4 border-black/90 bg-[#111] p-0 md:p-2 shadow-2xl ring-1 ring-white/10  md:rounded-[44px]">
           {/* Notch */}
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 w-32 h-6 bg-black rounded-b-2xl flex items-center justify-center">
+          <div className="absolute left-1/2 top-0 md:top-2 flex h-2 w-20 -translate-x-1/2 items-center justify-center rounded-b-2xl bg-black sm:h-6 sm:w-24 md:h-6 md:w-32">
             <div className="w-16 h-1 rounded-full bg-[#222]" />
           </div>
 
           {/* Screen */}
-          <div className="w-full h-full bg-black rounded-[32px] overflow-hidden">
+          <div className="h-full w-full overflow-hidden rounded-2xl bg-black sm:rounded-[20px] md:rounded-4xl">
             <img
               src={src}
               alt={alt}
