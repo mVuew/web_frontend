@@ -327,7 +327,10 @@ export default function AuthPage() {
   }
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-background text-foreground px-4 py-28 sm:px-6 ">
+    <main
+      data-analytics-component="auth_page"
+      className="relative min-h-screen overflow-hidden bg-background text-foreground px-4 py-28 sm:px-6 "
+    >
       <Toaster
         type={notice?.tone}
         message={notice?.text ?? ""}
@@ -357,6 +360,7 @@ lg:items-center
       >
         {/* LEFT */}
         <motion.section
+          data-analytics-component="auth_info_panel"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -452,6 +456,8 @@ text-muted-foreground
 
           <Link
             href="/"
+            data-analytics-label="Back to home"
+            data-analytics-action="navigate_home"
             className="
 inline-flex
 border border-border
@@ -468,6 +474,7 @@ transition
 
         {/* RIGHT */}
         <motion.section
+          data-analytics-component="auth_form"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{
@@ -482,6 +489,8 @@ transition
                 key={item}
                 type="button"
                 onClick={() => setMode(item as AuthMode)}
+                data-analytics-label={item === "signup" ? "Switch to Sign up" : "Switch to Sign in"}
+                data-analytics-action="change_auth_mode"
                 className={`
 flex-1
 border
@@ -509,7 +518,11 @@ hover:bg-accent-soft
             ))}
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form
+            data-analytics-component="auth_credentials_form"
+            onSubmit={handleSubmit}
+            className="space-y-4"
+          >
             {mode === "signup" && (
               <input
                 placeholder="Full name"
@@ -547,6 +560,8 @@ hover:bg-accent-soft
 
             <button
               type="submit"
+              data-analytics-label={mode === "signup" ? "Create account" : "Sign in"}
+              data-analytics-action={mode === "signup" ? "submit_signup" : "submit_signin"}
               disabled={!canSubmit}
               className="
 w-full
@@ -584,6 +599,8 @@ text-muted-foreground
 
           <button
             onClick={handleGoogleSignIn}
+            data-analytics-label="Continue with Google"
+            data-analytics-action="submit_google_signin"
             disabled={busy}
             className="
 w-full

@@ -81,6 +81,38 @@ app/
 * Light/Dark mode support
 * Responsive UI
 * Firebase Authentication (Email/Password + Google)
+* Mixpanel analytics (auto page, section, and click tracking)
+
+---
+
+## Mixpanel Analytics Setup
+
+Add your Mixpanel project token to `.env.local`:
+
+```env
+NEXT_PUBLIC_MIXPANEL_TOKEN=
+NEXT_PUBLIC_MIXPANEL_DEBUG=false
+```
+
+Tracked events:
+
+* `page_opened` and `page_opened_<page_name>`: sent on initial load and route changes.
+* `section_viewed` and `section_viewed_<page_name>_<section_name>`: sent once when each section first enters the viewport.
+* `option_clicked` and `option_clicked_<page_name>_<action_kind>_<option_name>`: sent for clickable elements (`a`, `button`, `role=button`, submit/button inputs, and explicit `data-analytics-click`).
+* `route_transition_start`: sent when navigation starts.
+
+User identification:
+
+* Signed-in users are identified in Mixpanel using Firebase `uid`.
+* `$email` and `$name` are synced to Mixpanel people profile when available.
+* On sign-out, Mixpanel identity is reset for anonymous tracking.
+
+Optional labeling helpers:
+
+* Add `data-analytics-section="Hero"` to override section names.
+* Add `data-analytics-label="Primary CTA"` to override click labels.
+* Add `data-analytics-component="Header"` on component roots for cleaner `component_name` in events.
+* Add `data-analytics-action="tab"` or similar to override click action kind.
 
 ---
 

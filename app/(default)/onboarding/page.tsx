@@ -509,6 +509,7 @@ text-muted-foreground
               </p>
 
               <div
+                data-analytics-component="onboarding_category_selector"
                 className="
 grid
 grid-cols-2
@@ -524,6 +525,8 @@ gap-2
                       key={category}
                       type="button"
                       onClick={() => toggleCategory(category)}
+                      data-analytics-label={`Category ${category}`}
+                      data-analytics-action="toggle_category"
                       className={`
 border
 px-3 py-2
@@ -556,6 +559,8 @@ hover:bg-surface
 
             <button
               type="submit"
+              data-analytics-label="Complete onboarding"
+              data-analytics-action="submit_onboarding"
               disabled={!canSubmit || busy}
               className="
 w-full

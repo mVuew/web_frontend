@@ -8,6 +8,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { AnalyticsTracker } from "@/components/analytics/AnalyticsTracker";
 
 type Theme = "light" | "dark";
 
@@ -66,7 +67,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
+    <ThemeContext.Provider value={value}>
+      <AnalyticsTracker />
+      {children}
+    </ThemeContext.Provider>
   );
 }
 
