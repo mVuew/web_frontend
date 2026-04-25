@@ -130,9 +130,9 @@ export default function OnboardingPage() {
     isFirebaseConfigured
       ? null
       : {
-          tone: "error",
-          text: `Firebase missing: ${missingFirebaseEnv.join(", ")}`,
-        },
+        tone: "error",
+        text: `Firebase missing: ${missingFirebaseEnv.join(", ")}`,
+      },
   );
 
   const canSubmit = useMemo(() => {
@@ -496,20 +496,14 @@ text-muted-foreground
               />
             </div>
 
-            <input
-              placeholder="FCM Token"
-              value={fcmToken}
-              onChange={(e) => setFcmToken(e.target.value)}
-              className={inputStyles}
-            />
 
             <div className="space-y-3">
               <p
                 className="
-text-xs uppercase
-tracking-[0.16em]
-text-muted-foreground
-"
+                            text-xs uppercase
+                            tracking-[0.16em]
+                            text-muted-foreground
+                            "
               >
                 Preferred categories
               </p>
@@ -518,7 +512,7 @@ text-muted-foreground
                 className="
 grid
 grid-cols-2
-sm:grid-cols-4
+sm:grid-cols-3
 gap-2
 "
               >
@@ -538,20 +532,19 @@ uppercase
 tracking-wider
 transition
 
-${
-  selected
-    ? `
+${selected
+                          ? `
 bg-surface
 border-(--color-accent-strong)
 text-foreground
 `
-    : `
+                          : `
 border-border
 bg-background
 text-muted-foreground
 hover:bg-surface
 `
-}
+                        }
 `}
                     >
                       {category}

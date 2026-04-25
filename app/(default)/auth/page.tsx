@@ -6,6 +6,7 @@ import {
   getRedirectResult,
   onAuthStateChanged,
   signInWithEmailAndPassword,
+  signInWithPopup,
   signInWithRedirect,
   updateProfile,
   type User,
@@ -14,7 +15,7 @@ import {
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useState, type FormEvent } from "react";
 
 import Toaster from "../../../components/atoms/Toaster";
 import { MVuewText } from "../../../components/ui/MVuewText";
@@ -140,13 +141,11 @@ export default function AuthPage() {
     isFirebaseConfigured
       ? null
       : {
-          tone: "error",
-          persistent: true,
-          text: `Firebase missing: ${missingFirebaseEnv.join(", ")}`,
-        },
+        tone: "error",
+        persistent: true,
+        text: `Firebase missing: ${missingFirebaseEnv.join(", ")}`,
+      },
   );
-
-  const [toastVisible, setToastVisible] = useState(Boolean(notice));
 
   function showNotice(tone: NoticeTone, text: string, persistent = false) {
     setNotice({
@@ -155,23 +154,6 @@ export default function AuthPage() {
       persistent,
     });
   }
-
-  useEffect(() => {
-    if (!notice) {
-      setToastVisible(false);
-      return;
-    }
-
-    setToastVisible(true);
-
-    if (notice.persistent) return;
-
-    const timer = window.setTimeout(() => {
-      setToastVisible(false);
-    }, 3500);
-
-    return () => window.clearTimeout(timer);
-  }, [notice]);
 
   useEffect(() => {
     if (!firebaseAuth || !isFirebaseConfigured) {
@@ -216,13 +198,14 @@ export default function AuthPage() {
     };
   }, [router]);
 
-  const canSubmit =
+  const canSubmit = Boolean(
     !busy &&
     email &&
     password &&
-    (mode === "signin" || (fullName && confirmPassword));
+    (mode === "signin" || (fullName && confirmPassword)),
+  );
 
-  async function verifyAndRouteUser(token: string) {
+  const verifyAndRouteUser = useCallback(async (token: string) => {
     try {
       const verification = await verifyAuthStatus(token);
 
@@ -231,7 +214,7 @@ export default function AuthPage() {
       showNotice("info", "Signed in. Continue with onboarding...");
       router.push("/onboarding");
     }
-  }
+  }, [router]);
 
   useEffect(() => {
     if (!firebaseAuth || !isFirebaseConfigured) {
@@ -256,7 +239,7 @@ export default function AuthPage() {
     };
 
     void consumeRedirectResult();
-  }, [router]);
+  }, [verifyAndRouteUser]);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -309,16 +292,35 @@ export default function AuthPage() {
   }
 
   async function handleGoogleSignIn() {
-    if (!firebaseAuth) return;
-
-    const auth = firebaseAuth;
+    if (!firebaseAuth) {
+      showNotice(
+        "error",
+        "Firebase auth is unavailable. Please check your environment configuration.",
+      );
+      return;
+    }
 
     setBusy(true);
+    showNotice("info", "Opening Google login...");
 
     try {
-      await signInWithRedirect(auth, googleProvider);
+      const credentials = await signInWithPopup(firebaseAuth, googleProvider);
+      const idToken = await credentials.user.getIdToken();
+
+      showNotice("success", "Google sign-in completed successfully.");
+
+      await verifyAndRouteUser(idToken);
     } catch (error) {
       showNotice("error", getAuthErrorMessage(error));
+
+      const firebaseError = error as FirebaseError | undefined;
+
+      if (
+        firebaseError?.code === "auth/popup-blocked" ||
+        firebaseError?.code === "auth/cancelled-popup-request"
+      ) {
+        await signInWithRedirect(firebaseAuth, googleProvider);
+      }
     } finally {
       setBusy(false);
     }
@@ -329,7 +331,8 @@ export default function AuthPage() {
       <Toaster
         type={notice?.tone}
         message={notice?.text ?? ""}
-        visible={Boolean(notice) && toastVisible}
+        visible={Boolean(notice)}
+        onClose={notice?.persistent ? undefined : () => setNotice(null)}
       />
 
       {/* theme background */}
@@ -487,19 +490,18 @@ text-sm
 font-medium
 transition
 
-${
-  mode === item
-    ? `
+${mode === item
+                    ? `
 bg-surface
 border-(--color-accent-strong)
 text-foreground
 `
-    : `
+                    : `
 border-border
 text-muted-foreground
 hover:bg-accent-soft
 `
-}
+                  }
 `}
               >
                 {item === "signup" ? "Sign up" : "Sign in"}
