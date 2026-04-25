@@ -101,7 +101,7 @@ ${open ? "rotate-180" : ""}
         <div
           role="menu"
           className="
-absolute
+absolute 
 right-0
 top-full
 z-50
@@ -111,7 +111,6 @@ w-52
 border border-border
 
 p-1
-
 shadow-2xl
 backdrop-blur-md
 "
