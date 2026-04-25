@@ -21,13 +21,16 @@ const sources: Source[] = [
 
 const CENTER = { x: 50, y: 50 };
 
-function arcPath(sx: number, sy: number) {
-  const mx = (sx + CENTER.x) / 2 + (Math.random() > 0.5 ? 6 : -6);
-  const my = (sy + CENTER.y) / 2 + (Math.random() > 0.5 ? 6 : -6);
+function arcPath(sx: number, sy: number, seed: number) {
+  const polarityX = seed % 2 === 0 ? 1 : -1;
+  const polarityY = seed % 3 === 0 ? -1 : 1;
+  const bend = 4 + (seed % 3);
+  const mx = (sx + CENTER.x) / 2 + bend * polarityX;
+  const my = (sy + CENTER.y) / 2 + bend * polarityY;
   return `M ${sx} ${sy} Q ${mx} ${my} ${CENTER.x} ${CENTER.y}`;
 }
 
-const paths = sources.map((s) => arcPath(s.x, s.y));
+const paths = sources.map((s, index) => arcPath(s.x, s.y, index));
 
 function FlowDot({
   path,

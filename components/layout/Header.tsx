@@ -78,6 +78,7 @@ export default function Header() {
       />
 
       <header
+        data-analytics-component="header"
         className={`
         fixed top-0 left-0 w-full z-50
         transition-transform duration-300
@@ -91,7 +92,12 @@ export default function Header() {
       >
         <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between px-3 sm:h-16 sm:px-4 lg:px-6">
           {/* Logo */}
-          <Link href="/" className="group flex items-center">
+          <Link
+            href="/"
+            data-analytics-label="Header Logo"
+            data-analytics-action="navigate_home"
+            className="group flex items-center"
+          >
             {/* <MVuewText
               timingScale={1.8}
               className={`
@@ -121,6 +127,8 @@ export default function Header() {
           <nav className="hidden md:flex items-center gap-4 text-sm font-medium lg:gap-8">
             <button
               onClick={() => handleNavigation("section-why")}
+              data-analytics-label="Why mVuew"
+              data-analytics-action="scroll_to_section"
               className="
               text-muted-foreground
               transition-colors duration-200
@@ -134,6 +142,8 @@ export default function Header() {
             </button>
             <button
               onClick={() => handleNavigation("section-experience")}
+              data-analytics-label="Experiences"
+              data-analytics-action="scroll_to_section"
               className="
               text-muted-foreground
               transition-colors duration-200
@@ -147,6 +157,8 @@ export default function Header() {
             </button>
             <Link
               href="/about"
+              data-analytics-label="About"
+              data-analytics-action="navigate_about"
               className="
               text-muted-foreground
               transition-colors duration-200
@@ -191,6 +203,8 @@ export default function Header() {
             <div>
               <button
                 onClick={() => setModalOpen(true)}
+                data-analytics-label="Early Access"
+                data-analytics-action="open_early_access_modal"
                 className="
                 px-3 py-2 sm:px-4
                 rounded-xl
