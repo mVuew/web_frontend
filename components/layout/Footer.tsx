@@ -63,15 +63,15 @@ export function Footer() {
 
         {/* Center: Links */}
         <div className="flex justify-center gap-6 text-sm text-zinc-400">
-          <Link href="/privacy" className="hover:text-white transition">
+          <Link href="/policy" className="hover:text-white transition">
             Privacy
           </Link>
           <Link href="/terms" className="hover:text-white transition">
             Terms
           </Link>
-          <Link href="/cookies" className="hover:text-white transition">
+          {/* <Link href="/cookies" className="hover:text-white transition">
             Cookies
-          </Link>
+          </Link> */}
           <Link href="/about" className="hover:text-white transition">
             About
           </Link>
