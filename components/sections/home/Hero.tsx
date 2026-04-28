@@ -108,6 +108,7 @@ export function Hero() {
             </motion.div>
 
             <CTA />
+            <p className="-mt-6 ms-10 hover:underline cursor-pointer font-bold">Join 500+ early users</p>
           </div>
 
           {/* Desktop phones */}

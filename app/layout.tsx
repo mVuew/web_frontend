@@ -4,6 +4,10 @@ import { siteFont } from "../constants/site-font";
 import { themeCssVariables } from "../constants/colors";
 import type { CSSProperties } from "react";
 
+export const metadata = {
+  title: "mVuew",
+};
+
 export default function RootLayout({
   children,
 }: {
