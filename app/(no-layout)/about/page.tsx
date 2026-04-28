@@ -1,7 +1,7 @@
 "use client";
 
+import NolayoutHeader from "@/components/atoms/NolayoutHeader";
 import EarlyAccessModal from "@/components/modals/EarlyAccessModal";
-import ThemeToggle from "@/components/ui/ThemeToggle";
 import { motion } from "framer-motion";
 import { useState } from "react";
 
@@ -26,48 +26,10 @@ export default function About() {
 
       <main className="min-h-screen pb-14 pt-6 sm:pb-20 sm:pt-10">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="mb-8 flex items-center justify-between gap-4 sm:mb-10">
-            <button
-              onClick={handleBack}
-              className="
-                px-4 py-2
-                rounded-xl
-                text-sm
-                font-medium
-                transition-all
-                border border-border
-                bg-surface
-                text-foreground
-                hover:bg-accent/10
-                hover:border-slate-500
-                whitespace-nowrap
-              "
-            >
-              Back
-            </button>
-
-            <div className="flex items-center justify-end gap-3">
-              <ThemeToggle />
-              <button
-                onClick={() => setModalOpen(true)}
-                className="
-                  px-4 py-2
-                  rounded-xl
-                  text-sm
-                  font-medium
-                  transition-all
-                  border border-border
-                  bg-surface
-                  text-foreground
-                  hover:bg-accent/10
-                  hover:border-slate-500
-                  whitespace-nowrap
-                "
-              >
-                Get Early Access
-              </button>
-            </div>
-          </div>
+          <NolayoutHeader
+            onBack={handleBack}
+            onOpenModal={() => setModalOpen(true)}
+          />
 
           {/* Header */}
           <motion.div
