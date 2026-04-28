@@ -39,7 +39,7 @@ function CTA() {
           Get Early Access
         </Button>
 
-        <button
+        {/* <button
           className="
                   px-6 py-3 text-sm cursor-pointer
                   sm:px-8 sm:py-5 sm:text-base
@@ -51,7 +51,7 @@ function CTA() {
                 "
         >
           Join 500+ early users
-        </button>
+        </button> */}
       </motion.div>
     </>
   );

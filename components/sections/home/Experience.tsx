@@ -33,7 +33,7 @@ export function FeedSection() {
               transition={{ delay: 0.15 }}
               className="max-w-md text-base leading-relaxed text-muted-foreground sm:text-lg md:text-xl"
             >
-              <AnimatedVuew delay={0.8} />
+             
               mVuew gives you a clear, simple summary that highlights only what
               matters. No noise, no confusion just the key information you need.
             </motion.p>
@@ -140,7 +140,7 @@ export function PerspectivesSection() {
               transition={{ delay: 0.15 }}
               className="max-w-md text-base leading-relaxed text-muted-foreground sm:text-lg md:text-xl"
             >
-              <AnimatedVuew delay={0.8} />
+             
               mVuew shows multiple perspectives side-by-side, so you don’t have
               to jump between sources or guess what’s missing.
             </motion.p>
@@ -185,7 +185,7 @@ export function TimelineSection() {
               transition={{ delay: 0.15 }}
               className="max-w-md text-base leading-relaxed text-muted-foreground sm:text-lg md:text-xl"
             >
-              <AnimatedVuew delay={0.8} />
+              
               mVuew gives you a simple timeline that shows how the story
               started, evolved, and where it stands today.
             </motion.p>
@@ -413,7 +413,7 @@ export function ExpertSection() {
               transition={{ delay: 0.15 }}
               className="max-w-md text-base leading-relaxed text-muted-foreground sm:text-lg md:text-xl"
             >
-              <AnimatedVuew delay={0.8} />
+              
               mVuew adds expert insights in simple language, so you can
               understand the impact and think with confidence.
             </motion.p>
@@ -672,7 +672,7 @@ export function OneView() {
               transition={{ delay: 0.15 }}
               className="max-w-md text-base leading-relaxed text-muted-foreground sm:text-lg md:text-xl"
             >
-              <AnimatedVuew delay={0.8} />
+           
               mVuew combines summary, perspectives, timeline, and insights into
               one clean view, so you don’t have to piece things together
             </motion.p>
@@ -716,7 +716,7 @@ export function CalmExperience() {
               transition={{ delay: 0.15 }}
               className="max-w-md text-base leading-relaxed text-muted-foreground sm:text-lg md:text-xl"
             >
-              <AnimatedVuew delay={0.8} />
+              
               mVuew removes noise and clutter, giving you a calm, focused way to
               understand the news.
             </motion.p>

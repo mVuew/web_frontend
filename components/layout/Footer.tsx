@@ -13,7 +13,14 @@ function FacebookIcon() {
 
 function InstagramIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <rect width="20" height="20" x="2" y="2" rx="5" />
       <path d="M16 11.37A4 4 0 1 1 12.63 8" />
       <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
@@ -40,17 +47,28 @@ function XIcon() {
 }
 
 const socials = [
-  { label: "Facebook", href: "https://www.facebook.com/mtruth.news", icon: <FacebookIcon /> },
-  { label: "Instagram", href: "https://www.instagram.com/mtruth.news", icon: <InstagramIcon /> },
-  { label: "LinkedIn", href: "https://www.linkedin.com/company/mtruth", icon: <LinkedInIcon /> },
-  { label: "X", href: "https://x.com/mtruth_news", icon: <XIcon /> },
+  {
+    label: "Facebook",
+    href: "https://www.facebook.com/mvuew",
+    icon: <FacebookIcon />,
+  },
+  {
+    label: "Instagram",
+    href: "https://www.instagram.com/mvuew_official/",
+    icon: <InstagramIcon />,
+  },
+  {
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/company/mvuew/",
+    icon: <LinkedInIcon />,
+  },
+  { label: "X", href: "https://x.com/mvuew_official", icon: <XIcon /> },
 ];
 
 export function Footer() {
   return (
     <footer className="border-t border-zinc-800  py-20">
       <div className="container mx-auto px-4 max-w-6xl flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-
         {/* Left: Logo + copyright */}
         <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 text-center md:text-left">
           <Link href="/" className="text-lg font-semibold text-foreground">
