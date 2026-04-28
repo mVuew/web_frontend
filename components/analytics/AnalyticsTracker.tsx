@@ -119,7 +119,7 @@ export function AnalyticsTracker() {
     const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
       const currentUserId = user?.uid ?? null;
 
-      if (currentUserId && currentUserId !== lastIdentifiedUserRef.current) {
+      if (user && currentUserId && currentUserId !== lastIdentifiedUserRef.current) {
         identifyUser(currentUserId, {
           $email: user.email ?? undefined,
           $name: user.displayName ?? undefined,
