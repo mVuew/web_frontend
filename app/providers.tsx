@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  Suspense,
   useState,
 } from "react";
 import { AnalyticsTracker } from "@/components/analytics/AnalyticsTracker";
@@ -68,7 +69,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <ThemeContext.Provider value={value}>
-      <AnalyticsTracker />
+      <Suspense fallback={null}>
+        <AnalyticsTracker />
+      </Suspense>
       {children}
     </ThemeContext.Provider>
   );
